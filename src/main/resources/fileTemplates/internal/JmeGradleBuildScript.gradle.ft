@@ -1,0 +1,55 @@
+#if (${LANGUAGE} && ${LANGUAGE} == "kotlin")
+buildscript {
+    ext.kotlin_version = '${KOTLIN_VERSION}'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+#end
+
+#if (${LANGUAGE} && ${LANGUAGE} == "kotlin")
+apply plugin: '${LANGUAGE}'
+#end
+
+apply plugin: 'java'
+
+sourceCompatibility = ${JAVA_VERSION}
+targetCompatibility = ${JAVA_VERSION}
+
+group '${GROUP_ID}'
+version '${VERSION}'
+
+repositories {
+    jcenter()
+}
+
+project.ext {
+    jmeVer = '${JME_ENGINE_VERSION}'
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+
+    #if (${LANGUAGE} && ${LANGUAGE} == "kotlin")
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    #end
+
+    implementation "org.jmonkeyengine:jme3-core:$jmeVer"
+    implementation "org.jmonkeyengine:jme3-desktop:$jmeVer"
+
+    #if (${JME_LWJGL_VERSION} != "LWJGL 2")//#end implementation "org.jmonkeyengine:jme3-lwjgl:$jmeVer"
+    #if (${JME_LWJGL_VERSION} != "LWJGL 3")//#end implementation "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+    #if (${JME_DEP_EFFECTS} != "true")//#end implementation "org.jmonkeyengine:jme3-effects:$jmeVer"
+    #if (${JME_DEP_OGG} != "true")//#end implementation "org.jmonkeyengine:jme3-jogg:$jmeVer"
+    #if (${JME_DEP_PLUGINS} != "true")//#end implementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
+
+    #if (${JME_DEP_BULLET} != "true")//#end implementation "org.jmonkeyengine:jme3-bullet:$jmeVer"
+
+    #if (${JME_DEP_BULLET} != "true" || ${JME_BULLET_TYPE} != "Native")//#end implementation "org.jmonkeyengine:jme3-bullet-native:$jmeVer"
+    #if (${JME_DEP_BULLET} != "true" || ${JME_BULLET_TYPE} != "jBullet")//#end implementation "org.jmonkeyengine:jme3-jbullet:$jmeVer"
+
+}

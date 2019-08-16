@@ -1,0 +1,37 @@
+<idea-plugin>
+    <id>com.jmonkeystore.intellij-integration</id>
+    <name>JmonkeyEngine Integration</name>
+    <vendor email="support@jmonkeystore.com" url="https://jmonkeystore.com">JmonkeyStore</vendor>
+    <description>Provides IDE integration for JmonkeyEngine</description>
+
+    <idea-version since-build="192"/>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>org.jetbrains.plugins.gradle</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <!-- New Jmonkey Project Template -->
+        <moduleType id="Jmonkey" implementationClass="com.jmonkeystore.ide.newproject.JmeModuleType"/>
+
+        <!-- Pre-load the jmonkey engine -->
+        <preloadingActivity implementation="com.jmonkeystore.ide.startup.JmePreloadActivity" />
+
+        <!-- The JmonkeyEngine service -->
+        <applicationService serviceInterface="com.jmonkeystore.ide.jme.JmeEngineService" serviceImplementation="com.jmonkeystore.ide.jme.impl.JmeEngineServiceImpl"/>
+
+        <!-- .j3o file type and editor -->
+        <fileType name="Jmonkey Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
+        <fileEditorProvider implementation="com.jmonkeystore.ide.editor.JmeModelEditorProvider"/>
+
+    </extensions>
+
+    <actions>
+        <action id="com.jmonkeystore.ide.action.ImportModelAction"
+                class="com.jmonkeystore.ide.action.ImportModelAction" text="Import Model"
+                description="Imports a model">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+
+</idea-plugin>
