@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.jmonkeystore'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 sourceCompatibility = 1.8
 
@@ -34,6 +34,9 @@ dependencies {
     compile "org.jmonkeyengine:jme3-jogg:$jmeVer"
     compile "org.jmonkeyengine:jme3-terrain:$jmeVer"
 
+    compile group: 'org.lwjgl.lwjgl', name: 'lwjgl', version: '2.9.3'
+
+
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"
 }
 
@@ -45,8 +48,9 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+      <h3>1.0</h3>
+      <p>Initial release</p>
+      """
 }
 
 jar {
