@@ -31,10 +31,10 @@
         <fileEditorProvider implementation="com.jmonkeystore.ide.editor.JmeModelEditorProvider"/>
 
         <!-- Scene Node Tool Window -->
-        <toolWindow id="Scene Explorer" anchor="left" secondary="true" factoryClass="com.jmonkeystore.ide.scene.explorer.SceneToolWindowFactory"/>
+        <toolWindow id="Scene Explorer" icon="/Icons/jmonkey.png" anchor="left" secondary="true" factoryClass="com.jmonkeystore.ide.scene.explorer.SceneToolWindowFactory"/>
 
         <!-- Object Editor Tool Window -->
-        <toolWindow id="Property Editor" anchor="right" secondary="false" factoryClass="com.jmonkeystore.ide.scene.editor.PropertyEditorToolWindowFactory"/>
+        <toolWindow id="Property Editor" icon="/Icons/jmonkey.png" anchor="right" secondary="false" factoryClass="com.jmonkeystore.ide.scene.editor.PropertyEditorToolWindowFactory"/>
 
     </extensions>
 
