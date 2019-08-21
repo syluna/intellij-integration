@@ -1,13 +1,17 @@
 package com.jmonkeystore.ide.jme.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.messages.MessageBus;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.*;
+import com.jme3.asset.AssetNotFoundException;
+import com.jme3.asset.ModelKey;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
+import com.jmonkeystore.ide.ModelFileAdapter;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.camera.SceneCameraState;
 import com.jmonkeystore.ide.util.ProjectUtils;
@@ -36,7 +40,7 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
         settings.setCustomRenderer(SwingCanvasContext.class);
         settings.setWidth(640);
         settings.setHeight(480);
-        settings.setFrameRate(30);
+        settings.setFrameRate(60);
         settings.setResizable(true);
         settings.setAudioRenderer(null);
         setSettings(settings);
@@ -50,6 +54,9 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
         if (project != null) {
             String targetRoot = project.getBasePath() + "/src/main/resources";
             assetManager.registerLocator(targetRoot, FileLocator.class);
+
+            MessageBus messageBus = project.getMessageBus();
+            messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new ModelFileAdapter());
         }
 
 

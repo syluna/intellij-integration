@@ -20,9 +20,21 @@
         <!-- The JmonkeyEngine service -->
         <applicationService serviceInterface="com.jmonkeystore.ide.jme.JmeEngineService" serviceImplementation="com.jmonkeystore.ide.jme.impl.JmeEngineServiceImpl"/>
 
+        <!-- Scene Explorer: view scenegraph -->
+        <applicationService serviceInterface="com.jmonkeystore.ide.scene.explorer.SceneExplorerService" serviceImplementation="com.jmonkeystore.ide.scene.explorer.impl.SceneExplorerServiceImpl"/>
+
+        <!-- Property Editor: edit scene graph selected object properties -->
+        <applicationService serviceInterface="com.jmonkeystore.ide.scene.editor.PropertyEditorService" serviceImplementation="com.jmonkeystore.ide.scene.editor.impl.PropertyEditorServiceImpl"/>
+
         <!-- .j3o file type and editor -->
         <fileType name="Jmonkey Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
         <fileEditorProvider implementation="com.jmonkeystore.ide.editor.JmeModelEditorProvider"/>
+
+        <!-- Scene Node Tool Window -->
+        <toolWindow id="Scene Explorer" anchor="left" secondary="true" factoryClass="com.jmonkeystore.ide.scene.explorer.SceneToolWindowFactory"/>
+
+        <!-- Object Editor Tool Window -->
+        <toolWindow id="Property Editor" anchor="right" secondary="false" factoryClass="com.jmonkeystore.ide.scene.editor.PropertyEditorToolWindowFactory"/>
 
     </extensions>
 

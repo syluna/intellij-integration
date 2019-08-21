@@ -76,4 +76,14 @@ public enum SkyLoader {
         return names;
     }
 
+    public static SkyLoader fromFriendlyName(String value) {
+        for (int i = 0; i < values().length; i++) {
+            if (values()[i].getFriendlyName().equalsIgnoreCase(value)) {
+                return values()[i];
+            }
+        }
+
+        return null;
+    }
+
 }

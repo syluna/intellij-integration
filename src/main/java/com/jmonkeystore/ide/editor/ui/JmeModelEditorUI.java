@@ -3,11 +3,8 @@ package com.jmonkeystore.ide.editor.ui;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.LoopMode;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -17,17 +14,21 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
+import com.jme3.scene.debug.WireBox;
 import com.jmonkeystore.ide.editor.impl.JmeModelEditorImpl;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.impl.JmePanel;
 import com.jmonkeystore.ide.jme.scene.WireProcessor;
 import com.jmonkeystore.ide.jme.sky.SkyLoader;
+import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
 
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -35,21 +36,12 @@ public class JmeModelEditorUI implements Disposable {
 
     private JmePanel jmePanel;
     private JPanel formPanel;
-    private JCheckBox directionalLightCheckBox;
-    private JCheckBox ambientLightCheckBox;
     private JPanel outputPanel;
-    private JCheckBox wireframeCheckBox;
-    private JCheckBox showSkyCheckBox;
-    private JCheckBox showGridCheckBox;
-    private JLabel vertsLabel;
-    private JLabel trisLabel;
-    private JCheckBox lightProbeCheckBox;
-    private JComboBox<String> skyComboBox;
-    private JComboBox<String> animsComboBox;
-    private JButton playAnimButton;
-    private JButton stopAnimButton;
-    private JSlider animTimeSlider;
-    private JSlider animSpeedSlider;
+    private JLabel infoLabel;
+
+    private final JmeEngineService engineService;
+
+    private final Spatial scene;
 
     private final DirectionalLight directionalLight;
     private final AmbientLight ambientLight;
@@ -59,20 +51,76 @@ public class JmeModelEditorUI implements Disposable {
     private Spatial sky;
     private final Geometry grid;
 
-    // animation
-    private AnimControl animControl;
-    private AnimChannel animChannel;
-    private final DefaultBoundedRangeModel animTimelineModel = new DefaultBoundedRangeModel(0, 1, 0, 200);
-    private float animSpeed = 1.0f;
+    // bounding box for highlighted items
+    private Geometry bbGeom; // used for highlighting bounding boxes
+    private Geometry meshGeom; // used for highlighting meshes
+
+    public void clearAllHighlights() {
+        clearBoundingBoxHighlight();
+        clearMeshHighlight();
+    }
+
+    public void clearBoundingBoxHighlight() {
+        if (bbGeom != null) {
+            bbGeom.removeFromParent();
+            bbGeom = null;
+        }
+    }
+
+    public void clearMeshHighlight() {
+        if (meshGeom != null) {
+            meshGeom.removeFromParent();
+            meshGeom = null;
+        }
+    }
+
+    public void highlightWithBoundingBox(Spatial spatial) {
+
+        clearAllHighlights();
+
+        if (spatial.getWorldBound() != null) {
+            this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
+
+            this.bbGeom.setMaterial(new Material(engineService.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+            this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+            this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+            this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+
+            engineService.enqueue(() -> jmePanel.getRootNode().attachChild(this.bbGeom) );
+        }
+
+    }
+
+    public void highlightMesh(Geometry geometry) {
+
+        clearAllHighlights();
+
+        if (geometry != null) {
+            this.meshGeom = new Geometry("Mesh Highlight", geometry.getMesh());
+            this.meshGeom.setLocalRotation(geometry.getWorldRotation());
+            this.meshGeom.setLocalTranslation(geometry.getWorldTranslation());
+            this.meshGeom.setLocalScale(this.meshGeom.getLocalScale());
+
+            this.meshGeom.setMaterial(new Material(engineService.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+            this.meshGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+            this.meshGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+            this.meshGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+
+            engineService.enqueue(() -> jmePanel.getRootNode().attachChild(this.meshGeom));
+        }
+    }
 
     public JmeModelEditorUI(JmeModelEditorImpl modelEditor) {
         super();
 
-        JmeEngineService engineService = ServiceManager.getService(JmeEngineService.class);
+        JMenuBar menuBar = createMenuBar();
+        outputPanel.add(menuBar, BorderLayout.NORTH);
+
+        engineService = ServiceManager.getService(JmeEngineService.class);
         jmePanel = engineService.getOrCreatePanel(modelEditor.getFile().getUrl());
 
         outputPanel.addComponentListener(new JmeComponentListener());
-        outputPanel.add(jmePanel, new GridConstraints());
+        outputPanel.add(jmePanel);
 
         // create tools
         wireProcessor = new WireProcessor(engineService.getAssetManager());
@@ -82,27 +130,33 @@ public class JmeModelEditorUI implements Disposable {
 
         grid = createGrid(engineService.getAssetManager());
 
-        skyComboBox.setModel(new DefaultComboBoxModel<>(SkyLoader.getFriendlyNames()));
-
         Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
         lightProbe = (LightProbe) probeModel.getLocalLightList().get(0);
         lightProbe.setBounds(new BoundingSphere(500, new Vector3f(0, 0, 0)));
 
-        animTimeSlider.setModel(animTimelineModel);
+        sky = SkyLoader.LAGOON.load();
+        skyBoxMenuItems[4].setSelected(true); // set the lagoon menuItem to selected.
+
+        // animTimeSlider.setModel(animTimelineModel);
+
+        scene = engineService.loadExternalModel(modelEditor.getFile().getUrl());
 
         engineService.enqueue(() -> {
             jmePanel.getRootNode().addLight(directionalLight);
             jmePanel.getRootNode().addLight(ambientLight);
 
-            // jmePanel.getRootNode().attachChild(sky);
             jmePanel.getRootNode().attachChild(grid);
+            jmePanel.getRootNode().attachChild(sky);
+            jmePanel.getRootNode().attachChild(scene);
 
-            Spatial model = engineService.loadExternalModel(modelEditor.getFile().getUrl());
-            jmePanel.getRootNode().attachChild(model);
+            EventQueue.invokeLater(() -> {
+                ServiceManager.getService(SceneExplorerService.class).setScene(scene);
+            });
 
-            findAnimControl(model);
+            // findAnimControl(scene);
 
             // fill animations
+            /*
             if (animControl != null && !animControl.getAnimationNames().isEmpty()) {
                 String[] animNames = animControl.getAnimationNames().toArray(new String[0]);
                 EventQueue.invokeLater(() -> animsComboBox.setModel(new DefaultComboBoxModel<>(animNames)) );
@@ -120,89 +174,22 @@ public class JmeModelEditorUI implements Disposable {
                 animsComboBox.setEnabled(false);
             }
 
+             */
+
             jmePanel.getCamera().setLocation(new Vector3f(0, 5, 15));
             jmePanel.getCamera().lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 
+
             EventQueue.invokeLater(() -> {
-                vertsLabel.setText(String.format("Verts: %,d", model.getVertexCount()));
-                trisLabel.setText(String.format("Tris: %,d", model.getTriangleCount()));
+                infoLabel.setText(String.format("Vertices: %d / Triangles: %d", scene.getVertexCount(), scene.getTriangleCount()));
             });
+
 
         });
 
 
         // editor events
-
-        // light
-        directionalLightCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            engineService.enqueue(() -> directionalLight.setEnabled(checkbox.isSelected()));
-        });
-
-        ambientLightCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            engineService.enqueue(() -> ambientLight.setEnabled(checkbox.isSelected()));
-        });
-
-        lightProbeCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().addLight(lightProbe));
-            }
-            else {
-                engineService.enqueue(() -> jmePanel.getRootNode().removeLight(lightProbe));
-            }
-        });
-
-        // sky
-        skyComboBox.addItemListener(e -> {
-            JComboBox comboBox = (JComboBox) e.getSource();
-            int index = comboBox.getSelectedIndex();
-
-            engineService.enqueue(() -> {
-
-                if (sky != null) {
-                    sky.removeFromParent();
-                }
-
-                sky = SkyLoader.values()[index].load();
-                jmePanel.getRootNode().attachChild(sky);
-            });
-        });
-
-        skyComboBox.setSelectedIndex(SkyLoader.LAGOON.ordinal());
-
-        // debug
-        wireframeCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getViewPort().addProcessor(wireProcessor));
-            }
-            else {
-                engineService.enqueue(() -> jmePanel.getViewPort().removeProcessor(wireProcessor));
-            }
-        });
-
-        showSkyCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(sky));
-            }
-            else {
-                engineService.enqueue(() -> sky.removeFromParent());
-            }
-        });
-
-        showGridCheckBox.addItemListener(e -> {
-            JCheckBox checkbox = (JCheckBox) e.getSource();
-            if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(grid));
-            }
-            else {
-                engineService.enqueue(() -> grid.removeFromParent());
-            }
-        });
-
+        /*
         // animations
         animsComboBox.addItemListener(e -> {
             if (animControl != null) {
@@ -244,8 +231,153 @@ public class JmeModelEditorUI implements Disposable {
             animChannel.setSpeed(animSpeed);
         });
 
+
+         */
     }
 
+    private JCheckBoxMenuItem[] skyBoxMenuItems;
+
+    private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        // lighting
+        JMenu lightsMenu = new JMenu("Lighting");
+        lightsMenu.addMenuListener(redrawListener);
+
+        JCheckBoxMenuItem dirLightMenuItem = new JCheckBoxMenuItem("Directional");
+        dirLightMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            engineService.enqueue(() -> directionalLight.setEnabled(checkbox.isSelected()));
+        });
+
+        lightsMenu.add(dirLightMenuItem);
+
+        JCheckBoxMenuItem ambLightMenuItem = new JCheckBoxMenuItem("Ambient");
+        ambLightMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            engineService.enqueue(() -> ambientLight.setEnabled(checkbox.isSelected()));
+        });
+        lightsMenu.add(ambLightMenuItem);
+
+        JCheckBoxMenuItem probeLightMenuItem = new JCheckBoxMenuItem("LightProbe");
+        probeLightMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            if (checkbox.isSelected()) {
+                engineService.enqueue(() -> jmePanel.getRootNode().addLight(lightProbe));
+            }
+            else {
+                engineService.enqueue(() -> jmePanel.getRootNode().removeLight(lightProbe));
+            }
+        });
+        lightsMenu.add(probeLightMenuItem);
+
+        menuBar.add(lightsMenu);
+
+        // sky
+        JMenu skyMenu = new JMenu("Sky");
+
+        JCheckBoxMenuItem showSkyBoxMenuItem = new JCheckBoxMenuItem("Show SkyBox", true);
+        showSkyBoxMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            if (checkbox.isSelected()) {
+                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(sky));
+            }
+            else {
+                engineService.enqueue(() -> sky.removeFromParent());
+            }
+        });
+        skyMenu.add(showSkyBoxMenuItem);
+
+        // skybox
+        skyBoxMenuItems = new JCheckBoxMenuItem[SkyLoader.values().length];
+
+        for (int i = 0; i < SkyLoader.values().length; i++) {
+            SkyLoader skyLoader = SkyLoader.values()[i];
+            skyBoxMenuItems[i] = new JCheckBoxMenuItem(skyLoader.getFriendlyName());
+            skyBoxMenuItems[i].addActionListener(this::selectSkyBox);
+            skyMenu.add(skyBoxMenuItems[i]);
+        }
+
+        menuBar.add(skyMenu);
+        skyMenu.addMenuListener(redrawListener);
+
+        // debug
+        JMenu debugMenu = new JMenu("Debug");
+        debugMenu.addMenuListener(redrawListener);
+
+        JCheckBoxMenuItem wireframeMenuItem = new JCheckBoxMenuItem("Wireframe");
+        wireframeMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            if (checkbox.isSelected()) {
+                engineService.enqueue(() -> jmePanel.getViewPort().addProcessor(wireProcessor));
+            }
+            else {
+                engineService.enqueue(() -> jmePanel.getViewPort().removeProcessor(wireProcessor));
+            }
+        });
+        debugMenu.add(wireframeMenuItem);
+
+        JCheckBoxMenuItem gridMenuItem = new JCheckBoxMenuItem("Grid", true);
+        gridMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+            if (checkbox.isSelected()) {
+                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(grid));
+            }
+            else {
+                engineService.enqueue(() -> grid.removeFromParent());
+            }
+        });
+        debugMenu.add(gridMenuItem);
+
+        menuBar.add(debugMenu);
+        return menuBar;
+    }
+
+    private void selectSkyBox(ActionEvent e) {
+
+        JCheckBoxMenuItem selectedItem = (JCheckBoxMenuItem) e.getSource();
+        SkyLoader skyLoader = SkyLoader.fromFriendlyName(selectedItem.getText());
+
+        for (JCheckBoxMenuItem menuItem : skyBoxMenuItems) {
+            if (!menuItem.equals(selectedItem)) {
+                menuItem.setSelected(false);
+            }
+        }
+
+        engineService.enqueue(() -> {
+
+            boolean isInScene = sky.getParent() != null;
+
+            if (isInScene) {
+                sky.removeFromParent();
+            }
+
+            sky = skyLoader.load();
+
+            if (isInScene) {
+                jmePanel.getRootNode().attachChild(sky);
+            }
+
+        });
+
+    }
+
+    private final MenuListener redrawListener = new MenuListener() {
+        @Override
+        public void menuSelected(MenuEvent e) {
+            outputPanel.revalidate();
+            outputPanel.repaint();
+        }
+
+        @Override public void menuDeselected(MenuEvent e) { }
+        @Override public void menuCanceled(MenuEvent e) { }
+    };
+
+    public Spatial getScene() {
+        return scene;
+    }
+
+    /*
     private void findAnimControl(Spatial model) {
 
         SceneGraphVisitor visitor = spatial -> {
@@ -258,6 +390,8 @@ public class JmeModelEditorUI implements Disposable {
         model.depthFirstTraversal(visitor);
     }
 
+     */
+
     private Geometry createGrid(AssetManager assetManager) {
         Geometry geometry = new Geometry("grid", new Grid(20, 20, 1.0f));
         Material gridMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -268,6 +402,7 @@ public class JmeModelEditorUI implements Disposable {
 
         return geometry;
     }
+
 
     public JmePanel getJmePanel() {
         return jmePanel;

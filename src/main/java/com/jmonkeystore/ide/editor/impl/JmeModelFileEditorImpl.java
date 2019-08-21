@@ -29,6 +29,10 @@ public class JmeModelFileEditorImpl implements FileEditor {
         Disposer.register(this, modelEditor);
     }
 
+    public JmeModelEditor getModelEditor() {
+        return modelEditor;
+    }
+
     @NotNull
     @Override
     public JComponent getComponent() {

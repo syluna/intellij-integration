@@ -51,4 +51,10 @@ public class JmeModelEditorImpl implements JmeModelEditor, DumbAware {
         return editorUI.getJmeComponent();
     }
 
+    @Override
+    public JmeModelEditorUI getEditor() {
+        return editorUI;
+    }
+
+
 }
