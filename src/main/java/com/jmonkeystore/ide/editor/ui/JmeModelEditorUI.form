@@ -14,16 +14,7 @@
         </constraints>
         <properties/>
         <border type="none"/>
-        <children>
-          <component id="5cc28" class="javax.swing.JLabel" binding="infoLabel">
-            <constraints border-constraint="Center"/>
-            <properties>
-              <horizontalAlignment value="2"/>
-              <text value="Label"/>
-              <verticalAlignment value="1"/>
-            </properties>
-          </component>
-        </children>
+        <children/>
       </grid>
     </children>
   </grid>

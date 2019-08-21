@@ -55,6 +55,68 @@ public class JmeModelEditorUI implements Disposable {
     private Geometry bbGeom; // used for highlighting bounding boxes
     private Geometry meshGeom; // used for highlighting meshes
 
+    // Skybox menu items. Used to set checked/unchecked when we select one.
+    private JCheckBoxMenuItem[] skyBoxMenuItems;
+
+    public JmeModelEditorUI(JmeModelEditorImpl modelEditor) {
+        super();
+
+        JMenuBar menuBar = createMenuBar();
+        outputPanel.add(menuBar, BorderLayout.PAGE_START);
+
+        infoLabel = new JLabel();
+        outputPanel.add(infoLabel, BorderLayout.SOUTH);
+
+        engineService = ServiceManager.getService(JmeEngineService.class);
+        jmePanel = engineService.getOrCreatePanel(modelEditor.getFile().getUrl());
+
+        outputPanel.addComponentListener(new JmeComponentListener());
+        outputPanel.add(jmePanel);
+
+        // create tools
+        wireProcessor = new WireProcessor(engineService.getAssetManager());
+
+        directionalLight = new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal(), ColorRGBA.White.mult(0.7f));
+        ambientLight = new AmbientLight(ColorRGBA.White.mult(0.5f));
+
+        grid = createGrid(engineService.getAssetManager());
+
+        Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
+        lightProbe = (LightProbe) probeModel.getLocalLightList().get(0);
+        lightProbe.setBounds(new BoundingSphere(500, new Vector3f(0, 0, 0)));
+
+        sky = SkyLoader.LAGOON.load();
+        skyBoxMenuItems[4].setSelected(true); // set the lagoon menuItem to selected.
+
+        // animTimeSlider.setModel(animTimelineModel);
+
+        scene = engineService.loadExternalModel(modelEditor.getFile().getUrl());
+
+        engineService.enqueue(() -> {
+            jmePanel.getRootNode().addLight(directionalLight);
+            jmePanel.getRootNode().addLight(ambientLight);
+
+            jmePanel.getRootNode().attachChild(grid);
+            jmePanel.getRootNode().attachChild(sky);
+            jmePanel.getRootNode().attachChild(scene);
+
+            EventQueue.invokeLater(() -> {
+                ServiceManager.getService(SceneExplorerService.class).setScene(scene);
+            });
+
+            jmePanel.getCamera().setLocation(new Vector3f(0, 5, 15));
+            jmePanel.getCamera().lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
+
+
+            EventQueue.invokeLater(() -> {
+                infoLabel.setText(String.format("Vertices: %d / Triangles: %d", scene.getVertexCount(), scene.getTriangleCount()));
+            });
+
+
+        });
+
+    }
+
     public void clearAllHighlights() {
         clearBoundingBoxHighlight();
         clearMeshHighlight();
@@ -110,132 +172,7 @@ public class JmeModelEditorUI implements Disposable {
         }
     }
 
-    public JmeModelEditorUI(JmeModelEditorImpl modelEditor) {
-        super();
 
-        JMenuBar menuBar = createMenuBar();
-        outputPanel.add(menuBar, BorderLayout.NORTH);
-
-        engineService = ServiceManager.getService(JmeEngineService.class);
-        jmePanel = engineService.getOrCreatePanel(modelEditor.getFile().getUrl());
-
-        outputPanel.addComponentListener(new JmeComponentListener());
-        outputPanel.add(jmePanel);
-
-        // create tools
-        wireProcessor = new WireProcessor(engineService.getAssetManager());
-
-        directionalLight = new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal(), ColorRGBA.White.mult(0.7f));
-        ambientLight = new AmbientLight(ColorRGBA.White.mult(0.5f));
-
-        grid = createGrid(engineService.getAssetManager());
-
-        Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
-        lightProbe = (LightProbe) probeModel.getLocalLightList().get(0);
-        lightProbe.setBounds(new BoundingSphere(500, new Vector3f(0, 0, 0)));
-
-        sky = SkyLoader.LAGOON.load();
-        skyBoxMenuItems[4].setSelected(true); // set the lagoon menuItem to selected.
-
-        // animTimeSlider.setModel(animTimelineModel);
-
-        scene = engineService.loadExternalModel(modelEditor.getFile().getUrl());
-
-        engineService.enqueue(() -> {
-            jmePanel.getRootNode().addLight(directionalLight);
-            jmePanel.getRootNode().addLight(ambientLight);
-
-            jmePanel.getRootNode().attachChild(grid);
-            jmePanel.getRootNode().attachChild(sky);
-            jmePanel.getRootNode().attachChild(scene);
-
-            EventQueue.invokeLater(() -> {
-                ServiceManager.getService(SceneExplorerService.class).setScene(scene);
-            });
-
-            // findAnimControl(scene);
-
-            // fill animations
-            /*
-            if (animControl != null && !animControl.getAnimationNames().isEmpty()) {
-                String[] animNames = animControl.getAnimationNames().toArray(new String[0]);
-                EventQueue.invokeLater(() -> animsComboBox.setModel(new DefaultComboBoxModel<>(animNames)) );
-
-                animChannel = animControl.createChannel();
-                animChannel.setAnim(animNames[0]);
-                animChannel.setSpeed(0);
-
-                int max = (int) (animChannel.getAnimMaxTime() * 1000);
-                animTimelineModel.setMaximum(max);
-            }
-            else {
-                playAnimButton.setEnabled(false);
-                stopAnimButton.setEnabled(false);
-                animsComboBox.setEnabled(false);
-            }
-
-             */
-
-            jmePanel.getCamera().setLocation(new Vector3f(0, 5, 15));
-            jmePanel.getCamera().lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
-
-
-            EventQueue.invokeLater(() -> {
-                infoLabel.setText(String.format("Vertices: %d / Triangles: %d", scene.getVertexCount(), scene.getTriangleCount()));
-            });
-
-
-        });
-
-
-        // editor events
-        /*
-        // animations
-        animsComboBox.addItemListener(e -> {
-            if (animControl != null) {
-                String animName = (String) animsComboBox.getSelectedItem();
-                if (animName != null) {
-                    animChannel.setAnim(animName);
-
-                    int max = (int) (animChannel.getAnimMaxTime() * 1000);
-                    animTimeSlider.getModel().setMaximum(max);
-                }
-            }
-        });
-
-        playAnimButton.addActionListener(e -> {
-            if (animChannel != null) {
-                animChannel.setSpeed(animSpeed);
-                animChannel.setLoopMode(LoopMode.Loop);
-            }
-        });
-
-        stopAnimButton.addActionListener(e -> {
-            if (animChannel != null) {
-                animChannel.setSpeed(0);
-            }
-        });
-
-        animTimeSlider.addChangeListener(e -> {
-            JSlider slider = (JSlider) e.getSource();
-            float val = slider.getValue() / 1000f;
-            animChannel.setSpeed(0);
-            animChannel.setTime(val);
-        });
-
-        animSpeedSlider.setModel(new DefaultBoundedRangeModel(0, 1, 0, 200));
-        animSpeedSlider.setValue((int) (animSpeed * 100));
-        animSpeedSlider.addChangeListener(e -> {
-            JSlider slider = (JSlider) e.getSource();
-            animSpeed = slider.getValue() / 100f;
-            animChannel.setSpeed(animSpeed);
-        });
-
-
-         */
-    }
-
-    private JCheckBoxMenuItem[] skyBoxMenuItems;
 
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
