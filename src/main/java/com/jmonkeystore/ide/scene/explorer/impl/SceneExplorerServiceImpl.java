@@ -95,10 +95,14 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
                 // normal viewer
                 if (item instanceof Spatial) {
-                    ServiceManager.getService(JmeEngineService.class)
-                            .getStateManager()
-                            .getState(NormalViewerState.class)
-                            .focus((Spatial) item);
+                    JmeEngineService engineService = ServiceManager.getService(JmeEngineService.class);
+
+                    engineService.enqueue(() -> {
+                        engineService.getStateManager()
+                                .getState(NormalViewerState.class)
+                                .focus((Spatial) item);
+                    });
+
                 }
 
                 if (item instanceof Node) {
