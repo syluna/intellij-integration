@@ -14,6 +14,7 @@ import com.jme3.system.JmeSystem;
 import com.jmonkeystore.ide.ModelFileAdapter;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.camera.SceneCameraState;
+import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 import com.jmonkeystore.ide.util.ProjectUtils;
 
 import java.awt.*;
@@ -34,7 +35,7 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     private SceneCameraState sceneCameraState;
 
     public JmeEngineServiceImpl() {
-        super(new SceneCameraState());
+        super(new SceneCameraState(), new NormalViewerState());
 
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(SwingCanvasContext.class);
@@ -149,6 +150,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     public void simpleInitApp() {
         sceneCameraState = getStateManager().getState(SceneCameraState.class);
         inputManager.setCursorVisible(true);
+
+        getStateManager().getState(NormalViewerState.class).setEnabled(false);
 
         // @todo provide an options page to let the users decide what to use.
         // - anistropic filtering, FXAA, etc.

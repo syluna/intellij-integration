@@ -20,6 +20,7 @@ import com.jme3.scene.debug.WireBox;
 import com.jmonkeystore.ide.editor.impl.JmeModelEditorImpl;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.impl.JmePanel;
+import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 import com.jmonkeystore.ide.jme.scene.WireProcessor;
 import com.jmonkeystore.ide.jme.sky.SkyLoader;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
@@ -253,6 +254,16 @@ public class JmeModelEditorUI implements Disposable {
             }
         });
         debugMenu.add(wireframeMenuItem);
+
+        JCheckBoxMenuItem normalsMenuItem = new JCheckBoxMenuItem("View Normals");
+        normalsMenuItem.addActionListener(e -> {
+            JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
+
+            engineService.enqueue(() -> {
+                    engineService.getStateManager().getState(NormalViewerState.class).setEnabled(checkbox.isSelected());
+            });
+        });
+        debugMenu.add(normalsMenuItem);
 
         JCheckBoxMenuItem gridMenuItem = new JCheckBoxMenuItem("Grid", true);
         gridMenuItem.addActionListener(e -> {

@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jme3.animation.AnimControl;
@@ -16,20 +17,26 @@ import com.jmonkeystore.ide.editor.objects.AnimControlEditor;
 import com.jmonkeystore.ide.editor.objects.GeometryEditor;
 import com.jmonkeystore.ide.editor.objects.NodeEditor;
 import com.jmonkeystore.ide.editor.ui.JmeModelEditorUI;
+import com.jmonkeystore.ide.jme.JmeEngineService;
+import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 import com.jmonkeystore.ide.scene.editor.PropertyEditorService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
 import com.jmonkeystore.ide.scene.explorer.SceneTreeRenderer;
 import com.jmonkeystore.ide.util.ProjectUtils;
+import org.jdesktop.swingx.HorizontalLayout;
+import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
 import java.util.List;
 
 public class SceneExplorerServiceImpl implements SceneExplorerService {
 
     private JBScrollPane windowContent;
 
+    // tree
     private final Tree tree;
     private final DefaultTreeModel treeModel;
     private final DefaultMutableTreeNode treeRoot;
@@ -38,15 +45,34 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
     public SceneExplorerServiceImpl() {
 
+        this.propertyEditorService = ServiceManager.getService(PropertyEditorService.class);
+
+        JPanel jPanel = new JPanel(new VerticalLayout());
+
+        JPanel toolBar = new JPanel(new HorizontalLayout());
+        toolBar.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        JButton saveButton = new JButton("Save Changes");
+        saveButton.setToolTipText("Permanently save any changes you have made.");
+        saveButton.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/disk.png"));
+
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.setToolTipText("Re-load the entire scene from storage.");
+        refreshButton.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/refresh.png"));
+
+        toolBar.add(saveButton);
+        toolBar.add(refreshButton, BorderLayout.EAST);
+
+        jPanel.add(toolBar);
+
+        jPanel.add(new JSeparator());
+
+        // create tree
         treeRoot = new DefaultMutableTreeNode(new Node("Scene"));
         treeModel = new DefaultTreeModel(treeRoot);
 
         tree = new Tree(treeModel);
         tree.setCellRenderer(new SceneTreeRenderer());
-
-        this.propertyEditorService = ServiceManager.getService(PropertyEditorService.class);
-
-
 
         tree.addTreeSelectionListener(e -> {
 
@@ -66,6 +92,14 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
             if (treeNode != null) {
                 Object item = treeNode.getUserObject();
+
+                // normal viewer
+                if (item instanceof Spatial) {
+                    ServiceManager.getService(JmeEngineService.class)
+                            .getStateManager()
+                            .getState(NormalViewerState.class)
+                            .focus((Spatial) item);
+                }
 
                 if (item instanceof Node) {
                     Node node = (Node) item;
@@ -108,7 +142,9 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
         });
 
-        windowContent = new JBScrollPane(tree);
+        jPanel.add(tree);
+
+        windowContent = new JBScrollPane(jPanel);
     }
 
     @Override
