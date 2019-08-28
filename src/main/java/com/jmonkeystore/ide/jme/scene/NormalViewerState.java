@@ -60,6 +60,12 @@ public class NormalViewerState extends BaseAppState {
         normalList.clear();
     }
 
+    private final SceneGraphVisitor visitor = spatial -> {
+        if (spatial instanceof Geometry) {
+            geometryList.add((Geometry) spatial);
+        }
+    };
+
     @Override
     public void update(float tpf) {
 
@@ -75,17 +81,11 @@ public class NormalViewerState extends BaseAppState {
 
         normalList.clear();
 
-        SceneGraphVisitor visitor = spatial -> {
-            if (spatial instanceof Geometry) {
-                geometryList.add((Geometry) spatial);
-            }
-        };
-
         focus.breadthFirstTraversal(visitor);
 
         for (Geometry geom : geometryList) {
 
-            Mesh normalMesh = TangentBinormalGenerator.genTbnLines(geom.getMesh(), 0.08f);
+            Mesh normalMesh = TangentBinormalGenerator.genNormalLines(geom.getMesh(), 0.08f);
 
             Geometry normalGeom = new Geometry("Normal Debug", normalMesh);
             normalGeom.setMaterial(normalMaterial);
