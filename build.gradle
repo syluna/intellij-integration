@@ -43,7 +43,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.2'
+    version 'IC-2019.2'
     plugins 'gradle', 'java'
 }
 patchPluginXml {
