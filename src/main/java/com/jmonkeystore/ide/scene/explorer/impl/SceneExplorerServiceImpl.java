@@ -8,6 +8,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jme3.animation.AnimControl;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -29,7 +30,8 @@ import org.jdesktop.swingx.VerticalLayout;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class SceneExplorerServiceImpl implements SceneExplorerService {
@@ -41,6 +43,8 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
     private final DefaultTreeModel treeModel;
     private final DefaultMutableTreeNode treeRoot;
 
+    private JPanel toolBar;
+
     private final PropertyEditorService propertyEditorService;
 
     public SceneExplorerServiceImpl() {
@@ -49,22 +53,22 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
         JPanel jPanel = new JPanel(new VerticalLayout());
 
-        JPanel toolBar = new JPanel(new HorizontalLayout());
+        toolBar = new JPanel(new HorizontalLayout());
         toolBar.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         JButton saveButton = new JButton("Save Changes");
         saveButton.setToolTipText("Permanently save any changes you have made.");
         saveButton.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/disk.png"));
+        toolBar.add(saveButton);
 
+        /*
         JButton refreshButton = new JButton("Refresh");
         refreshButton.setToolTipText("Re-load the entire scene from storage.");
         refreshButton.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/refresh.png"));
-
-        toolBar.add(saveButton);
         toolBar.add(refreshButton, BorderLayout.EAST);
+         */
 
         jPanel.add(toolBar);
-
         jPanel.add(new JSeparator());
 
         // create tree
@@ -146,6 +150,33 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
         });
 
+        // set the save action after the treeRoot has been initialized.
+        saveButton.addActionListener(e -> {
+            Spatial scene = (Spatial) treeRoot.getUserObject();
+
+            String filename = scene.getParent().getName();
+
+            if (filename != null) {
+
+                if (filename.startsWith("file://")) {
+
+                    File outfile = new File(filename.replace("file://", ""));
+
+                    try {
+                        BinaryExporter.getInstance().save(scene, outfile);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                else {
+                    System.out.println("Unable to save files inside jars.");
+                }
+            }
+            else {
+                System.out.println("filename is null!");
+            }
+        });
+
         jPanel.add(tree);
 
         windowContent = new JBScrollPane(jPanel);
@@ -156,19 +187,16 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
         return windowContent;
     }
 
-    private boolean sceneActive = false;
-
     @Override
     public void setScene(Spatial scene) {
         treeRoot.removeAllChildren();
         treeModel.reload();
 
         tree.setVisible(scene != null);
+        toolBar.setVisible(scene != null);
 
-        if (scene == null) {
-            sceneActive = false;
-        }
-        else {
+        if (scene != null) {
+
             treeRoot.setUserObject(scene);
             findLights(treeRoot, scene);
             findControls(treeRoot, scene);
@@ -180,7 +208,6 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
         }
     }
-
 
     private void findLights(DefaultMutableTreeNode treeNode, Spatial spatial) {
         for (Light light : spatial.getLocalLightList()) {
