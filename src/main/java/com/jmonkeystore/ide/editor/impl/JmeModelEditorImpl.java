@@ -2,7 +2,6 @@ package com.jmonkeystore.ide.editor.impl;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,7 +11,7 @@ import com.jmonkeystore.ide.jme.JmeEngineService;
 
 import javax.swing.*;
 
-public class JmeModelEditorImpl implements JmeModelEditor, DumbAware {
+public class JmeModelEditorImpl implements JmeModelEditor {
 
     private static final Logger LOG = Logger.getInstance(JmeModelEditorImpl.class);
 
