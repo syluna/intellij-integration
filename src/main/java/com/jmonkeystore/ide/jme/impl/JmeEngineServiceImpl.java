@@ -62,7 +62,7 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
 
         createCanvas();
-        startCanvas();
+        startCanvas(true);
         canvasContext = (SwingCanvasContext) getContext();
         canvasContext.setSystemListener(this);
 
