@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.jmonkeystore'
-version '1.0'
+version '1.0.1'
 
 sourceCompatibility = 1.8
 
@@ -50,6 +50,14 @@ patchPluginXml {
     changeNotes """
       <h3>1.0</h3>
       <p>Initial release</p>
+      
+      <h3>1.0.1</h3>
+      <ul>
+        <li>Added a scene explorer</li>
+        <li>Added basic editing tools</li>
+        <li>Added option to view normals in editor debug menu</li>
+        <li>Added the ability to save changes</li>
+      </ul>
       """
 }
 
