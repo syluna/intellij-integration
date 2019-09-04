@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.action.importer.gltf.GltfExtrasLoader;
 import com.jmonkeystore.ide.jme.JmeEngineService;
+import com.jmonkeystore.ide.util.SimpleTextDialog;
 import org.gradle.internal.impldep.com.google.common.io.Files;
 
 import java.io.File;
@@ -35,6 +36,17 @@ public class ModelImporter {
         setTargetRoot(new File(targetRoot)); // assets
         setTargetAssetPath(targetAssetPath);  // Models/CoolModel
         // setProbeOptions(it.next());
+
+        if (!getSourceRoot().canRead()) {
+            new SimpleTextDialog("Permission Error", "You do not have permission to read this directory.")
+                    .showAndGet();
+        }
+
+        if (!getTargetRoot().canWrite()) {
+            new SimpleTextDialog("Permission Error", "You do not have permission to write to this directory.")
+                    .showAndGet();
+        }
+
         convert(new File(modelPath)); // C:\\Downloads\\CoolModel\\AwesomeThing.gltf
     }
 
@@ -109,8 +121,11 @@ public class ModelImporter {
             s =  engineService.loadExternalModel(f.getAbsolutePath());
         }
 
-        ModelInfo info = new ModelInfo(sourceRoot, f.getName(), s);
-        runProcessors(info);
+        if (s != null) {
+            ModelInfo info = new ModelInfo(sourceRoot, f.getName(), s);
+            runProcessors(info);
+        }
+
     }
 
     public void runProcessors( ModelInfo info ) {
