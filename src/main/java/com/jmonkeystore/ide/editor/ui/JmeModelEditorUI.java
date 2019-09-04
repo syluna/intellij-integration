@@ -99,20 +99,21 @@ public class JmeModelEditorUI implements Disposable {
 
             jmePanel.getRootNode().attachChild(grid);
             jmePanel.getRootNode().attachChild(sky);
-            jmePanel.getRootNode().attachChild(scene);
 
-            EventQueue.invokeLater(() -> {
-                ServiceManager.getService(SceneExplorerService.class).setScene(scene);
-            });
+            if (scene != null) {
+                jmePanel.getRootNode().attachChild(scene);
+
+                EventQueue.invokeLater(() -> {
+                    ServiceManager.getService(SceneExplorerService.class).setScene(scene);
+                });
+
+                EventQueue.invokeLater(() -> {
+                    infoLabel.setText(String.format("Vertices: %d / Triangles: %d", scene.getVertexCount(), scene.getTriangleCount()));
+                });
+            }
 
             jmePanel.getCamera().setLocation(new Vector3f(0, 5, 15));
             jmePanel.getCamera().lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
-
-
-            EventQueue.invokeLater(() -> {
-                infoLabel.setText(String.format("Vertices: %d / Triangles: %d", scene.getVertexCount(), scene.getTriangleCount()));
-            });
-
 
         });
 
