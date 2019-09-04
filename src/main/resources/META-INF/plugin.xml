@@ -30,6 +30,10 @@
         <fileType name="Jmonkey Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
         <fileEditorProvider implementation="com.jmonkeystore.ide.editor.JmeModelEditorProvider"/>
 
+        <!-- .j3m file type and editor -->
+        <fileType name="Jmonkey Material" implementationClass="com.jmonkeystore.ide.filetype.JmeMaterialFileType" fieldName="INSTANCE" language="Jme.Material" extensions="j3m"/>
+        <fileEditorProvider implementation="com.jmonkeystore.ide.viewer.JmeMaterialViewerProvider"/>
+
         <!-- Scene Node Tool Window -->
         <toolWindow id="Scene Explorer" icon="/Icons/jmonkey.png" anchor="left" secondary="true" factoryClass="com.jmonkeystore.ide.scene.explorer.SceneToolWindowFactory"/>
 
