@@ -79,6 +79,7 @@ public class ImportModelDialog extends DialogWrapper {
                     jmePanel.getRootNode().addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal(), ColorRGBA.White.mult(0.7f)));
 
                     if ("gltf".equalsIgnoreCase(Files.getFileExtension(fileChooser.getSelectedFile().getAbsolutePath()))) {
+
                         model = engineService.loadExternalModel(GltfExtrasLoader.createModelKey(fileChooser.getSelectedFile().getAbsolutePath()));
 
                         // add a light probe to GLTF models.
@@ -89,13 +90,16 @@ public class ImportModelDialog extends DialogWrapper {
 
                     }
                     else {
+
                         model = engineService.loadExternalModel(fileChooser.getSelectedFile().getAbsolutePath());
 
                         // add an ambient light to non-GLTF models.
                         jmePanel.getRootNode().addLight(new AmbientLight(ColorRGBA.White.mult(0.4f)));
                     }
 
-                    jmePanel.getRootNode().attachChild(model);
+                    if (model != null) {
+                        jmePanel.getRootNode().attachChild(model);
+                    }
 
                 });
 
