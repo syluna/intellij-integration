@@ -177,6 +177,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
         });
 
+        tree.addMouseListener(new SceneTreeContextMenuListener());
         jPanel.add(tree);
 
         windowContent = new JBScrollPane(jPanel);
