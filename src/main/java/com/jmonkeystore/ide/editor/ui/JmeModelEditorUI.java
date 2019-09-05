@@ -80,6 +80,9 @@ public class JmeModelEditorUI implements Disposable {
         directionalLight = new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal(), ColorRGBA.White.mult(0.7f));
         ambientLight = new AmbientLight(ColorRGBA.White.mult(0.5f));
 
+        directionalLight.setEnabled(false);
+        ambientLight.setEnabled(false);
+
         grid = createGrid(engineService.getAssetManager());
 
         Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
