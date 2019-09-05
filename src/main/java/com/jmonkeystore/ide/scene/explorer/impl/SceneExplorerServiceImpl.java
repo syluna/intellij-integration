@@ -9,7 +9,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jme3.animation.AnimControl;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.light.Light;
+import com.jme3.light.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -17,6 +17,10 @@ import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
 import com.jmonkeystore.ide.editor.objects.AnimControlEditor;
 import com.jmonkeystore.ide.editor.objects.GeometryEditor;
 import com.jmonkeystore.ide.editor.objects.NodeEditor;
+import com.jmonkeystore.ide.editor.objects.light.AmbientLightEditor;
+import com.jmonkeystore.ide.editor.objects.light.DirectionalLightEditor;
+import com.jmonkeystore.ide.editor.objects.light.PointLightEditor;
+import com.jmonkeystore.ide.editor.objects.light.SpotLightEditor;
 import com.jmonkeystore.ide.editor.ui.JmeModelEditorUI;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
@@ -125,6 +129,8 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                         modelEditor.highlightMesh(geometry);
                     }
                 }
+
+                // controls
                 else if (item instanceof AnimControl) {
                     AnimControl animControl = (AnimControl) item;
                     propertyEditorService.setWindowContent(new AnimControlEditor(animControl));
@@ -133,6 +139,32 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                         modelEditor.clearAllHighlights();
                     }
                 }
+
+                // Lights
+
+                else if (item instanceof Light) {
+
+                    if (item instanceof AmbientLight) {
+                        AmbientLight ambientLight = (AmbientLight) item;
+                        propertyEditorService.setWindowContent(new AmbientLightEditor(ambientLight));
+                    }
+                    else if (item instanceof DirectionalLight) {
+                        DirectionalLight directionalLight = (DirectionalLight) item;
+                        propertyEditorService.setWindowContent(new DirectionalLightEditor(directionalLight));
+                    }
+                    else if (item instanceof PointLight) {
+                        PointLight pointLight = (PointLight) item;
+                        propertyEditorService.setWindowContent(new PointLightEditor(pointLight));
+                    }
+                    else if (item instanceof SpotLight) {
+                        SpotLight spotLight = (SpotLight) item;
+                        propertyEditorService.setWindowContent(new SpotLightEditor(spotLight));
+                    }
+                    else if (item instanceof LightProbe) {
+
+                    }
+                }
+
                 else {
                     propertyEditorService.clearWindowContent();
 
@@ -177,10 +209,19 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
         });
 
-        tree.addMouseListener(new SceneTreeContextMenuListener());
+        tree.addMouseListener(new SceneTreeContextMenuListener(tree));
         jPanel.add(tree);
 
         windowContent = new JBScrollPane(jPanel);
+    }
+
+    @Override
+    public void refreshScene() {
+        Spatial scene = (Spatial) treeRoot.getUserObject();
+
+        if (scene != null) {
+            setScene(scene);
+        }
     }
 
     @Override
@@ -211,15 +252,33 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
     }
 
     private void findLights(DefaultMutableTreeNode treeNode, Spatial spatial) {
-        for (Light light : spatial.getLocalLightList()) {
-            treeNode.add(new DefaultMutableTreeNode(light));
+
+        if (spatial.getLocalLightList().size() > 0) {
+
+            DefaultMutableTreeNode lightsTreeNode = new DefaultMutableTreeNode(new CollectionNode("Lights", "/Icons/SceneExplorer/light.png"));
+
+            for (Light light : spatial.getLocalLightList()) {
+                lightsTreeNode.add(new DefaultMutableTreeNode(light));
+            }
+
+            treeNode.add(lightsTreeNode);
         }
+
     }
 
     private void findControls(DefaultMutableTreeNode treeNode, Spatial spatial) {
-        for (int i = 0; i < spatial.getNumControls(); i++) {
-            treeNode.add(new DefaultMutableTreeNode(spatial.getControl(i)));
+
+        if (spatial.getNumControls() > 0) {
+
+            DefaultMutableTreeNode controlsTreeNode = new DefaultMutableTreeNode(new CollectionNode("Controls", "/Icons/SceneExplorer/joystick.png"));
+
+            for (int i = 0; i < spatial.getNumControls(); i++) {
+                controlsTreeNode.add(new DefaultMutableTreeNode(spatial.getControl(i)));
+            }
+
+            treeNode.add(controlsTreeNode);
         }
+
     }
 
     private void traverseScene(DefaultMutableTreeNode treeNode, Spatial spatial) {
@@ -243,5 +302,6 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             treeNode.add(geomNode);
         }
     }
+
 
 }

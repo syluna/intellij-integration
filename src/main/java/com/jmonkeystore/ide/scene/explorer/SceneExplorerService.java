@@ -7,6 +7,7 @@ import javax.swing.*;
 public interface SceneExplorerService {
 
    JComponent getWindowContent();
-    void setScene(Spatial scene);
+   void setScene(Spatial scene);
 
+   void refreshScene();
 }
