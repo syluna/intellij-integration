@@ -37,7 +37,7 @@ public class JmeMaterialViewerUI {
             AmbientLight ambientLight = new AmbientLight(ColorRGBA.White.mult(0.4f));
             jmePanel.getRootNode().addLight(ambientLight);
 
-            Material mat = engineService.loadExternalMaterial(materialViewer.getFile().getUrl());
+            Material mat = engineService.getExternalAssetLoader().load(materialViewer.getFile().getUrl(), Material.class);
 
             if (mat != null) {
                 geom.setMaterial(mat);

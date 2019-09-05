@@ -80,7 +80,7 @@ public class ImportModelDialog extends DialogWrapper {
 
                     if ("gltf".equalsIgnoreCase(Files.getFileExtension(fileChooser.getSelectedFile().getAbsolutePath()))) {
 
-                        model = engineService.loadExternalModel(GltfExtrasLoader.createModelKey(fileChooser.getSelectedFile().getAbsolutePath()));
+                        model = engineService.getExternalAssetLoader().load(GltfExtrasLoader.createModelKey(fileChooser.getSelectedFile().getAbsolutePath()), Spatial.class);
 
                         // add a light probe to GLTF models.
                         Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
@@ -91,7 +91,7 @@ public class ImportModelDialog extends DialogWrapper {
                     }
                     else {
 
-                        model = engineService.loadExternalModel(fileChooser.getSelectedFile().getAbsolutePath());
+                        model = engineService.getExternalAssetLoader().load(fileChooser.getSelectedFile().getAbsolutePath(), Spatial.class);
 
                         // add an ambient light to non-GLTF models.
                         jmePanel.getRootNode().addLight(new AmbientLight(ColorRGBA.White.mult(0.4f)));

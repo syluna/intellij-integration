@@ -5,12 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.MaterialKey;
-import com.jme3.asset.ModelKey;
 import com.jme3.asset.plugins.FileLocator;
-import com.jme3.material.Material;
-import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jmonkeystore.ide.ModelFileAdapter;
@@ -18,15 +13,10 @@ import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.camera.SceneCameraState;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 import com.jmonkeystore.ide.util.ProjectUtils;
-import com.jmonkeystore.ide.util.SimpleTextDialog;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,6 +27,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
     private SwingCanvasContext canvasContext;
     private SceneCameraState sceneCameraState;
+
+    private ExternalAssetLoader externalAssetLoader;
 
     public JmeEngineServiceImpl() {
         super(new SceneCameraState(), new NormalViewerState());
@@ -152,6 +144,9 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
     @Override
     public void simpleInitApp() {
+
+        this.externalAssetLoader = new ExternalAssetLoader(assetManager);
+
         sceneCameraState = getStateManager().getState(SceneCameraState.class);
         inputManager.setCursorVisible(true);
 
@@ -195,169 +190,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
     }
 
-    @Override
-    public Material loadExternalMaterial(String url) {
-        return loadExternalMaterial(new MaterialKey(url));
-    }
-
-    @Override
-    public Material loadExternalMaterial(MaterialKey textureKey) {
-
-        // determine if this model is from a jar dependency or from the open project.
-
-        String url = textureKey.getName();
-
-        if (!url.startsWith("jar://")) {
-
-            // @TODO: the file:// protocol could cause an issue...
-            File path = new File(url
-                    .replace("file:\\", "")
-                    .replace("file://", "")
-            );
-
-            if (!path.canRead()) {
-                new SimpleTextDialog("Permission Error", "You do not have permission to read this directory.")
-                        .showAndGet();
-
-                return null;
-            }
-
-            String dir = path.getParent();
-            String name = path.getName();
-
-            assetManager.registerLocator(dir, FileLocator.class);
-            Material material = assetManager.loadMaterial(name);
-            assetManager.unregisterLocator(dir, FileLocator.class);
-
-            // we don't want to keep assets cached that are loaded from external sources.
-            // it also causes issues when assets have the same name (e.g. sketchfab uses scene.gltf a lot)
-            // this occurs because we register the path, so only the model name is the key.
-            assetManager.deleteFromCache((MaterialKey) material.getKey());
-
-            return material;
-        }
-        else {
-
-            String jarPart = "jar!/";
-            int index = url.indexOf(jarPart);
-            String modelPath = url.substring(index + jarPart.length());
-
-            LOG.debug("Loading Model: " + modelPath);
-
-            try {
-                Material material = assetManager.loadMaterial(modelPath);
-                return material;
-            }
-            catch (AssetNotFoundException ex) {
-
-                // if the asset wasn't found, we need to add the jar to the classpath.
-                // a try/catch might seem a bit heavyweight, but it means we don't have to keep a list
-                // of jars that we've added. It also avoids a bunch of extra code to do a null check
-                // which is what this process does anyway. I'm satisfied this is a suitable approach.
-
-                String jarUrl = url.replace("jar://", "");
-                jarUrl = jarUrl.substring(0, jarUrl.indexOf("!/"));
-
-                LOG.debug("Adding jar to classpath: " + jarUrl);
-
-                File jarFile = new File(jarUrl);
-
-                addToClasspath(getClass().getClassLoader(), jarFile);
-
-                Material material = assetManager.loadMaterial(modelPath);
-                return material;
-            }
-        }
-
-    }
-
-    @Nullable
-    @Override
-    public Spatial loadExternalModel(String url) {
-        return loadExternalModel(new ModelKey(url));
-    }
-
-    @Nullable
-    @Override
-    public Spatial loadExternalModel(ModelKey modelKey) {
-
-        // determine if this model is from a jar dependency or from the open project.
-
-        String url = modelKey.getName();
-
-        if (!url.startsWith("jar://")) {
-
-            // @TODO: the file:// protocol could cause an issue...
-            File path = new File(url
-                    .replace("file:\\", "")
-                    .replace("file://", "")
-            );
-
-            if (!path.canRead()) {
-                new SimpleTextDialog("Permission Error", "You do not have permission to read this directory.")
-                        .showAndGet();
-
-                return null;
-            }
-
-            String dir = path.getParent();
-            String name = path.getName();
-
-            assetManager.registerLocator(dir, FileLocator.class);
-            Spatial model = assetManager.loadModel(name);
-            assetManager.unregisterLocator(dir, FileLocator.class);
-
-            // we don't want to keep assets cached that are loaded from external sources.
-            // it also causes issues when assets have the same name (e.g. sketchfab uses scene.gltf a lot)
-            // this occurs because we register the path, so only the model name is the key.
-            assetManager.deleteFromCache((ModelKey) model.getKey());
-
-            return model;
-        }
-        else {
-
-            String jarPart = "jar!/";
-            int index = url.indexOf(jarPart);
-            String modelPath = url.substring(index + jarPart.length());
-
-            LOG.debug("Loading Model: " + modelPath);
-
-            try {
-                Spatial model = assetManager.loadModel(modelPath);
-                return model;
-            }
-            catch (AssetNotFoundException ex) {
-
-                // if the asset wasn't found, we need to add the jar to the classpath.
-                // a try/catch might seem a bit heavyweight, but it means we don't have to keep a list
-                // of jars that we've added. It also avoids a bunch of extra code to do a null check
-                // which is what this process does anyway. I'm satisfied this is a suitable approach.
-
-                String jarUrl = url.replace("jar://", "");
-                jarUrl = jarUrl.substring(0, jarUrl.indexOf("!/"));
-
-                LOG.debug("Adding jar to classpath: " + jarUrl);
-
-                File jarFile = new File(jarUrl);
-
-                addToClasspath(getClass().getClassLoader(), jarFile);
-
-                Spatial model = assetManager.loadModel(modelPath);
-                return model;
-            }
-        }
-
-    }
-
-    private void addToClasspath(ClassLoader classLoader, File file) {
-        try {
-            URL url = file.toURI().toURL();
-            Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(classLoader, url);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
-        }
+    public ExternalAssetLoader getExternalAssetLoader() {
+        return externalAssetLoader;
     }
 
 }

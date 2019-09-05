@@ -91,7 +91,7 @@ public class JmeModelEditorUI implements Disposable {
 
         // animTimeSlider.setModel(animTimelineModel);
 
-        scene = engineService.loadExternalModel(modelEditor.getFile().getUrl());
+        scene = engineService.getExternalAssetLoader().load(modelEditor.getFile().getUrl(), Spatial.class);
 
         engineService.enqueue(() -> {
             jmePanel.getRootNode().addLight(directionalLight);
