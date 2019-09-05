@@ -1,9 +1,6 @@
 package com.jmonkeystore.ide.jme.impl;
 
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.ModelKey;
+import com.jme3.asset.*;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
@@ -61,7 +58,7 @@ public class ExternalAssetLoader {
             else if (clazz.isAssignableFrom(Material.class)) {
                 Material material = assetManager.loadMaterial(ext.name);
                 assetManager.unregisterLocator(ext.dir, FileLocator.class);
-                assetManager.deleteFromCache((ModelKey) material.getKey());
+                assetManager.deleteFromCache((MaterialKey) material.getKey());
 
                 return (T) material;
             }
