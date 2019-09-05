@@ -116,9 +116,9 @@ public class ModelImporter {
 
         if( "gltf".equalsIgnoreCase(extension) ) {
             // We do special setup for GLTF
-            s = engineService.loadExternalModel(GltfExtrasLoader.createModelKey(f.getAbsolutePath()));
+            s = engineService.getExternalAssetLoader().load(GltfExtrasLoader.createModelKey(f.getAbsolutePath()), Spatial.class);
         } else {
-            s =  engineService.loadExternalModel(f.getAbsolutePath());
+            s =  engineService.getExternalAssetLoader().load(f.getAbsolutePath(), Spatial.class);
         }
 
         if (s != null) {
