@@ -60,12 +60,12 @@ public abstract class Vector3fControl implements JmeEditorControl {
         }
 
         if (!textField.getText().trim().isEmpty() && NumberUtils.isFloat(textField.getText())) {
-            float val = Float.parseFloat(textFieldX.getText());
+            float val = Float.parseFloat(textField.getText());
 
             switch (axis) {
-                case 0: setValue(new Vector3f(val, vector3f.y, vector3f.z));
-                case 1: setValue(new Vector3f(vector3f.x, val, vector3f.z));
-                case 2: setValue(new Vector3f(vector3f.x, vector3f.y, val));
+                case 0: setValue(new Vector3f(val, vector3f.y, vector3f.z)); break;
+                case 1: setValue(new Vector3f(vector3f.x, val, vector3f.z)); break;
+                case 2: setValue(new Vector3f(vector3f.x, vector3f.y, val)); break;
             }
         }
 
