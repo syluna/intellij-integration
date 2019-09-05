@@ -6,10 +6,18 @@ import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.util.SimpleTextDialog;
 import org.jetbrains.annotations.Nullable;
+import sun.misc.URLClassPath;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Stack;
+
+/**
+ * Loads files from either a filesystem or jar that may or may not be part of the classpath.
+ */
 
 public class ExternalAssetLoader {
 
@@ -71,10 +79,13 @@ public class ExternalAssetLoader {
                     Spatial model = assetManager.loadModel(ext.fullPath);
                     return (T) model;
                 } catch (AssetNotFoundException ex) {
-                    File jarFile = new File(ext.jarUrl);
-                    addToClasspath(getClass().getClassLoader(), jarFile);
 
+                    File jarFile = new File(ext.jarUrl);
+
+                    addToClasspath(getClass().getClassLoader(), jarFile);
                     Spatial model = assetManager.loadModel(ext.fullPath);
+                    removeFromClassPath(getClass().getClassLoader(), jarFile);
+
                     return (T) model;
                 }
             }
@@ -83,10 +94,13 @@ public class ExternalAssetLoader {
                     Material material = assetManager.loadMaterial(ext.fullPath);
                     return (T) material;
                 } catch (AssetNotFoundException ex) {
-                    File jarFile = new File(ext.jarUrl);
-                    addToClasspath(getClass().getClassLoader(), jarFile);
 
+                    File jarFile = new File(ext.jarUrl);
+
+                    addToClasspath(getClass().getClassLoader(), jarFile);
                     Material material = assetManager.loadMaterial(ext.fullPath);
+                    removeFromClassPath(getClass().getClassLoader(), jarFile);
+
                     return (T) material;
                 }
             }
@@ -94,7 +108,7 @@ public class ExternalAssetLoader {
         }
 
         new SimpleTextDialog(
-                "Load Model Error",
+                "Load Resource Error",
                 "Unable to handle: " + assetKey.getName()
         ).show();
 
@@ -176,6 +190,24 @@ public class ExternalAssetLoader {
             Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(classLoader, url);
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+    }
+
+    private void removeFromClassPath(ClassLoader classLoader, File file) {
+
+        try {
+            URL url = file.toURI().toURL();
+            Class<?> urlClass = URLClassLoader.class;
+            Field ucpField = urlClass.getDeclaredField("ucp");
+            ucpField.setAccessible(true);
+            URLClassPath ucp = (URLClassPath) ucpField.get(classLoader);
+            Class<?> ucpClass = URLClassPath.class;
+            Field urlsField = ucpClass.getDeclaredField("urls");
+            urlsField.setAccessible(true);
+            Stack urls = (Stack) urlsField.get(ucp);
+            urls.remove(url);
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception", e);
         }
