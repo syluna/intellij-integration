@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.jmonkeystore'
-version '1.0.1'
+version '1.0.2'
 
 sourceCompatibility = 1.8
 
@@ -48,17 +48,26 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      <h3>1.0</h3>
-      <p>Initial release</p>
-      
-      <h3>1.0.1</h3>
-      <ul>
+
+    <h3>1.0.2</h3>
+    <ul>
+        <li>View j3m materials.</li>
+        <li>Add and remove lights from a scene.</li>
+        <li>Added checks and dialogs for read/write permissions.</li>
+        <li>Clean up classpath when finished with added jars.</li>
+    </ul>
+
+    <h3>1.0.1</h3>
+    <ul>
         <li>Added a scene explorer</li>
         <li>Added basic editing tools</li>
         <li>Added option to view normals in editor debug menu</li>
         <li>Added the ability to save changes</li>
-      </ul>
-      """
+    </ul>
+
+    <h3>1.0</h3>
+    <p>Initial release</p>
+    """
 }
 
 jar {
