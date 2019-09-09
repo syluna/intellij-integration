@@ -5,7 +5,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.plugins.FileLocator;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jmonkeystore.ide.ModelFileAdapter;
@@ -48,14 +47,12 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
         Project project = ProjectUtils.getActiveProject();
 
-        if (project != null) {
-            String targetRoot = project.getBasePath() + "/src/main/resources";
-            assetManager.registerLocator(targetRoot, FileLocator.class);
+        // if a project is already open when the IDE starts it will not trigger the "Project Opened" event, so we call it here
 
+        if (project != null) {
             MessageBus messageBus = project.getMessageBus();
             messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new ModelFileAdapter());
         }
-
 
         createCanvas();
         startCanvas(true);
