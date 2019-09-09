@@ -12,6 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+/**
+ * Listens for .j3o files being opened and selected and sets the scene explorer root from the selected model.
+ */
 public class ModelFileAdapter implements FileEditorManagerListener {
 
     public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
@@ -45,8 +48,6 @@ public class ModelFileAdapter implements FileEditorManagerListener {
         else {
             ServiceManager.getService(SceneExplorerService.class).setScene(null);
         }
-
-
     }
 
 }
