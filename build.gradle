@@ -21,7 +21,7 @@ configurations {
 }
 
 project.ext {
-    jmeVer = "3.2.4-stable"
+    jmeVer = "3.3.0-alpha2"
 }
 
 dependencies {
@@ -34,7 +34,7 @@ dependencies {
     compile "org.jmonkeyengine:jme3-jogg:$jmeVer"
     compile "org.jmonkeyengine:jme3-terrain:$jmeVer"
 
-    compile group: 'org.lwjgl.lwjgl', name: 'lwjgl', version: '2.9.3'
+    // compile group: 'org.lwjgl.lwjgl', name: 'lwjgl', version: '2.9.3'
 
 
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"

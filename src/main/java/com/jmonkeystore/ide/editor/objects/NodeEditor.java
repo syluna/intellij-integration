@@ -22,6 +22,21 @@ public class NodeEditor implements JmeObject {
 
         this.content = new JPanel(new VerticalLayout());
 
+        /*
+        StringControl nameControl = new StringControl("Name", node.getName()) {
+            @Override
+            public String getValue() {
+                return node.getName();
+            }
+
+            @Override
+            public void setValue(String value) {
+                node.setName(value);
+            }
+        };
+        content.add(nameControl.getJComponent());
+         */
+
         Vector3fControl translationControl = new Vector3fControl("Local Translation", node.getLocalTranslation()) {
             @Override
             public void setValue(Vector3f value) {

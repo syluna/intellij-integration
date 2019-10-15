@@ -25,6 +25,7 @@ public class JmeModelFileEditorImpl implements FileEditor {
 
 
     public JmeModelFileEditorImpl(@NotNull Project project, @NotNull VirtualFile file) {
+
         modelEditor = new JmeModelEditorImpl(project, file);
         Disposer.register(this, modelEditor);
     }

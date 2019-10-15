@@ -12,6 +12,8 @@ import java.awt.*;
 
 public class JmePanel extends AwtPanel {
 
+    public static final String ROOTNODE_PREFIX = "IJ ROOTNODE: ";
+
     private final String name;
 
     private Camera camera;
@@ -33,7 +35,7 @@ public class JmePanel extends AwtPanel {
         viewPort = new ViewPort("Offscreen View", camera);
         viewPort.setClearFlags(true, true, true);
 
-        rootNode = new Node(name);
+        rootNode = new Node(ROOTNODE_PREFIX + name);
 
         // rootNode.updateLogicalState(0);
         // rootNode.updateGeometricState();

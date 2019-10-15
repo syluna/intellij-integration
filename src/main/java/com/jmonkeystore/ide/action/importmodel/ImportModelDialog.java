@@ -1,4 +1,4 @@
-package com.jmonkeystore.ide.action;
+package com.jmonkeystore.ide.action.importmodel;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -10,7 +10,7 @@ import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
-import com.jmonkeystore.ide.action.importer.gltf.GltfExtrasLoader;
+import com.jmonkeystore.ide.action.importmodel.importer.gltf.GltfExtrasLoader;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.impl.JmePanel;
 import org.gradle.internal.impldep.com.google.common.io.Files;

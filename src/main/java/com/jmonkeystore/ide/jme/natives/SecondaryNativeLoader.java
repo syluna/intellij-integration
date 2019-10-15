@@ -2,7 +2,7 @@ package com.jmonkeystore.ide.jme.natives;
 
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
-import com.jmonkeystore.ide.startup.JmePreloadActivity;
+import com.jmonkeystore.ide.startup.JmeStartupActivity;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -191,12 +191,12 @@ public class SecondaryNativeLoader {
         }
 
         // URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
-        URL url = JmePreloadActivity.class.getClassLoader().getResource(pathInJar);
+        URL url = JmeStartupActivity.class.getClassLoader().getResource(pathInJar);
 
         if (url == null) {
             // Try the root of the classpath as well.
             // url = Thread.currentThread().getContextClassLoader().getResource(fileNameInJar);
-            url = JmePreloadActivity.class.getClassLoader().getResource(fileNameInJar);
+            url = JmeStartupActivity.class.getClassLoader().getResource(fileNameInJar);
         }
 
         if (url == null) {
@@ -369,7 +369,7 @@ public class SecondaryNativeLoader {
         try {
             String classpath = System.getProperty("java.class.path");
             // URL url = JmePreloadActivity.class.getClassLoader().getResource("com/jme3/system/NativeLibraryLoader.class");
-            URL url = JmePreloadActivity.class.getClassLoader().getResource("com/jmonkeystore/ide/jme/natives/SecondaryNativeLoader.class");
+            URL url = JmeStartupActivity.class.getClassLoader().getResource("com/jmonkeystore/ide/jme/natives/SecondaryNativeLoader.class");
             // com.jmonkeystore.ide.jme.natives
 
             StringBuilder sb = new StringBuilder(url.toString());

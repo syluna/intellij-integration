@@ -1,10 +1,10 @@
-package com.jmonkeystore.ide.action;
+package com.jmonkeystore.ide.action.importmodel;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.jmonkeystore.ide.action.importer.ModelImporter;
+import com.jmonkeystore.ide.action.importmodel.importer.ModelImporter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

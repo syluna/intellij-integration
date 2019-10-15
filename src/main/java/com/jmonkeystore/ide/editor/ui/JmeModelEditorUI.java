@@ -2,7 +2,9 @@ package com.jmonkeystore.ide.editor.ui;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
@@ -40,8 +42,6 @@ public class JmeModelEditorUI implements Disposable {
     private JPanel outputPanel;
     private JLabel infoLabel;
 
-    private final JmeEngineService engineService;
-
     private final Spatial scene;
 
     private final DirectionalLight directionalLight;
@@ -62,13 +62,19 @@ public class JmeModelEditorUI implements Disposable {
     public JmeModelEditorUI(JmeModelEditorImpl modelEditor) {
         super();
 
+        VirtualFile[] roots = ProjectRootManager.getInstance(modelEditor.getProject()).getContentSourceRoots();
+        System.out.println("ROOTS:");
+        for (VirtualFile root : roots) {
+            System.out.println(root.getPath());
+        }
+
         JMenuBar menuBar = createMenuBar();
         outputPanel.add(menuBar, BorderLayout.PAGE_START);
 
         infoLabel = new JLabel();
         outputPanel.add(infoLabel, BorderLayout.SOUTH);
 
-        engineService = ServiceManager.getService(JmeEngineService.class);
+        JmeEngineService engineService = ServiceManager.getService(JmeEngineService.class);
         jmePanel = engineService.getOrCreatePanel(modelEditor.getFile().getUrl());
 
         outputPanel.addComponentListener(new JmeComponentListener());
@@ -107,7 +113,7 @@ public class JmeModelEditorUI implements Disposable {
                 jmePanel.getRootNode().attachChild(scene);
 
                 EventQueue.invokeLater(() -> {
-                    ServiceManager.getService(SceneExplorerService.class).setScene(scene);
+                    ServiceManager.getService(SceneExplorerService.class).setScene(scene, modelEditor.getFile());
                 });
 
                 EventQueue.invokeLater(() -> {
@@ -123,8 +129,10 @@ public class JmeModelEditorUI implements Disposable {
     }
 
     public void clearAllHighlights() {
-        clearBoundingBoxHighlight();
-        clearMeshHighlight();
+        ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+            clearBoundingBoxHighlight();
+            clearMeshHighlight();
+        });
     }
 
     public void clearBoundingBoxHighlight() {
@@ -146,16 +154,17 @@ public class JmeModelEditorUI implements Disposable {
         clearAllHighlights();
 
         if (spatial.getWorldBound() != null) {
-            this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
 
-            this.bbGeom.setMaterial(new Material(engineService.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
-            this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
-            this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
-            this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+                this.bbGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+                this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+                this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+                this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
 
-            engineService.enqueue(() -> jmePanel.getRootNode().attachChild(this.bbGeom) );
+                jmePanel.getRootNode().attachChild(bbGeom);
+            });
         }
-
     }
 
     public void highlightMesh(Geometry geometry) {
@@ -163,17 +172,19 @@ public class JmeModelEditorUI implements Disposable {
         clearAllHighlights();
 
         if (geometry != null) {
-            this.meshGeom = new Geometry("Mesh Highlight", geometry.getMesh());
-            this.meshGeom.setLocalRotation(geometry.getWorldRotation());
-            this.meshGeom.setLocalTranslation(geometry.getWorldTranslation());
-            this.meshGeom.setLocalScale(this.meshGeom.getLocalScale());
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                this.meshGeom = new Geometry("Mesh Highlight", geometry.getMesh());
+                this.meshGeom.setLocalRotation(geometry.getWorldRotation());
+                this.meshGeom.setLocalTranslation(geometry.getWorldTranslation());
+                this.meshGeom.setLocalScale(this.meshGeom.getLocalScale());
 
-            this.meshGeom.setMaterial(new Material(engineService.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
-            this.meshGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
-            this.meshGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
-            this.meshGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+                this.meshGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+                this.meshGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+                this.meshGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+                this.meshGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
 
-            engineService.enqueue(() -> jmePanel.getRootNode().attachChild(this.meshGeom));
+                jmePanel.getRootNode().attachChild(this.meshGeom);
+            });
         }
     }
 
@@ -189,7 +200,7 @@ public class JmeModelEditorUI implements Disposable {
         JCheckBoxMenuItem dirLightMenuItem = new JCheckBoxMenuItem("Directional");
         dirLightMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
-            engineService.enqueue(() -> directionalLight.setEnabled(checkbox.isSelected()));
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> directionalLight.setEnabled(checkbox.isSelected()));
         });
 
         lightsMenu.add(dirLightMenuItem);
@@ -197,7 +208,7 @@ public class JmeModelEditorUI implements Disposable {
         JCheckBoxMenuItem ambLightMenuItem = new JCheckBoxMenuItem("Ambient");
         ambLightMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
-            engineService.enqueue(() -> ambientLight.setEnabled(checkbox.isSelected()));
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> ambientLight.setEnabled(checkbox.isSelected()));
         });
         lightsMenu.add(ambLightMenuItem);
 
@@ -205,10 +216,10 @@ public class JmeModelEditorUI implements Disposable {
         probeLightMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
             if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().addLight(lightProbe));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getRootNode().addLight(lightProbe));
             }
             else {
-                engineService.enqueue(() -> jmePanel.getRootNode().removeLight(lightProbe));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getRootNode().removeLight(lightProbe));
             }
         });
         lightsMenu.add(probeLightMenuItem);
@@ -222,10 +233,10 @@ public class JmeModelEditorUI implements Disposable {
         showSkyBoxMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
             if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(sky));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getRootNode().attachChild(sky));
             }
             else {
-                engineService.enqueue(() -> sky.removeFromParent());
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> sky.removeFromParent());
             }
         });
         skyMenu.add(showSkyBoxMenuItem);
@@ -251,10 +262,10 @@ public class JmeModelEditorUI implements Disposable {
         wireframeMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
             if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getViewPort().addProcessor(wireProcessor));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getViewPort().addProcessor(wireProcessor));
             }
             else {
-                engineService.enqueue(() -> jmePanel.getViewPort().removeProcessor(wireProcessor));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getViewPort().removeProcessor(wireProcessor));
             }
         });
         debugMenu.add(wireframeMenuItem);
@@ -263,8 +274,8 @@ public class JmeModelEditorUI implements Disposable {
         normalsMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
 
-            engineService.enqueue(() -> {
-                    engineService.getStateManager().getState(NormalViewerState.class).setEnabled(checkbox.isSelected());
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                ServiceManager.getService(JmeEngineService.class).getStateManager().getState(NormalViewerState.class).setEnabled(checkbox.isSelected());
             });
         });
         debugMenu.add(normalsMenuItem);
@@ -273,10 +284,10 @@ public class JmeModelEditorUI implements Disposable {
         gridMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
             if (checkbox.isSelected()) {
-                engineService.enqueue(() -> jmePanel.getRootNode().attachChild(grid));
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> jmePanel.getRootNode().attachChild(grid));
             }
             else {
-                engineService.enqueue(() -> grid.removeFromParent());
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> grid.removeFromParent());
             }
         });
         debugMenu.add(gridMenuItem);
@@ -296,7 +307,7 @@ public class JmeModelEditorUI implements Disposable {
             }
         }
 
-        engineService.enqueue(() -> {
+        ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
 
             boolean isInScene = sky.getParent() != null;
 

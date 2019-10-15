@@ -1,22 +1,20 @@
-package com.jmonkeystore.ide.editor.controls.numfloat;
+package com.jmonkeystore.ide.editor.controls.string;
 
 import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
-import com.jmonkeystore.ide.util.NumberUtils;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public abstract class FloatControl implements JmeEditorControl {
-
+public  abstract class StringControl implements JmeEditorControl {
 
     private JPanel contentPanel;
     private JTextField valueTextField;
 
-    public FloatControl(String title, float value) {
+    public StringControl(String title, String value) {
 
-        ((TitledBorder)contentPanel.getBorder()).setTitle("Float: " + title);
+        ((TitledBorder)contentPanel.getBorder()).setTitle("String: " + title);
         refresh();
 
         this.valueTextField.getDocument().addDocumentListener(new DocumentListener() {
@@ -28,29 +26,24 @@ public abstract class FloatControl implements JmeEditorControl {
     }
 
     private void set() {
-        if (!valueTextField.getText().trim().isEmpty() && NumberUtils.isFloat(valueTextField.getText())) {
-            float val = Float.parseFloat(valueTextField.getText());
-            setValue(val);
-        }
+        setValue(valueTextField.getText());
     }
-
-
-    public abstract float getValue();
-    public abstract void setValue(float value);
 
     @Override
     public JComponent getJComponent() {
         return contentPanel;
     }
 
+    public abstract String getValue();
+    public abstract void setValue(String value);
+
     @Override
     public void refresh() {
-        valueTextField.setText("" + getValue());
+        valueTextField.setText(getValue());
     }
 
     @Override
     public void cleanup() {
 
     }
-
 }

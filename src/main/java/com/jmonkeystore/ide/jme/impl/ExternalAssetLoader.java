@@ -1,18 +1,23 @@
 package com.jmonkeystore.ide.jme.impl;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.jme3.asset.*;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.util.SimpleTextDialog;
+import javassist.URLClassPath;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.URLClassPath;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -21,10 +26,29 @@ import java.util.Stack;
 
 public class ExternalAssetLoader {
 
+    private final List<String> locators = new ArrayList<>();
     private final AssetManager assetManager;
 
     ExternalAssetLoader(AssetManager assetManager) {
         this.assetManager = assetManager;
+
+    }
+
+    public void registerRoot(Project project, VirtualFile virtualFile) {
+
+        VirtualFile root = ProjectRootManager.getInstance(project)
+                .getFileIndex()
+                .getSourceRootForFile(virtualFile);
+
+        if (root != null) {
+
+            String path = root.getPath();
+
+            if (!locators.contains(path)) {
+                locators.add(path);
+                assetManager.registerLocator(path, FileLocator.class);
+            }
+        }
 
     }
 

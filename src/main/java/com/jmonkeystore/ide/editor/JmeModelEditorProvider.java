@@ -1,5 +1,6 @@
 package com.jmonkeystore.ide.editor;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
@@ -7,6 +8,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
+import com.jmonkeystore.ide.jme.JmeEngineService;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +30,11 @@ public class JmeModelEditorProvider implements FileEditorProvider, DumbAware {
     @NotNull
     @Override
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+
+        ServiceManager.getService(JmeEngineService.class)
+                .getExternalAssetLoader()
+                .registerRoot(project, virtualFile);
+
         return new JmeModelFileEditorImpl(project, virtualFile);
     }
 

@@ -1,17 +1,13 @@
 package com.jmonkeystore.ide.jme.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBus;
 import com.jme3.app.SimpleApplication;
+import com.jme3.environment.EnvironmentCamera;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
-import com.jmonkeystore.ide.ModelFileAdapter;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.camera.SceneCameraState;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
-import com.jmonkeystore.ide.util.ProjectUtils;
 
 import java.awt.*;
 import java.awt.event.AWTEventListener;
@@ -30,7 +26,7 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     private ExternalAssetLoader externalAssetLoader;
 
     public JmeEngineServiceImpl() {
-        super(new SceneCameraState(), new NormalViewerState());
+        super(new SceneCameraState(), new NormalViewerState(), new EnvironmentCamera());
 
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(SwingCanvasContext.class);
@@ -45,19 +41,24 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
         assetManager = JmeSystem.newAssetManager(getClass().getResource(
                 "/AssetManager/IntellijAssetManager.cfg"));
 
+        /*
         Project project = ProjectUtils.getActiveProject();
 
         // if a project is already open when the IDE starts it will not trigger the "Project Opened" event, so we call it here
-
+        // this doesn't work all the time. We need a better way.
         if (project != null) {
             MessageBus messageBus = project.getMessageBus();
             messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new ModelFileAdapter());
         }
 
+         */
+
         createCanvas();
         startCanvas(true);
         canvasContext = (SwingCanvasContext) getContext();
         canvasContext.setSystemListener(this);
+
+        this.externalAssetLoader = new ExternalAssetLoader(assetManager);
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new TargetedMouseListener(), AWTEvent.MOUSE_EVENT_MASK);
     }
@@ -142,7 +143,7 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     @Override
     public void simpleInitApp() {
 
-        this.externalAssetLoader = new ExternalAssetLoader(assetManager);
+
 
         sceneCameraState = getStateManager().getState(SceneCameraState.class);
         inputManager.setCursorVisible(true);

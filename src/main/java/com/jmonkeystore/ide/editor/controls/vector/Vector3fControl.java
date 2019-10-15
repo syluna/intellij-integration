@@ -5,23 +5,26 @@ import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
 import com.jmonkeystore.ide.util.NumberUtils;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public abstract class Vector3fControl implements JmeEditorControl {
 
     private JPanel contentPanel;
+    private JLabel titleLabel;
+
     private JTextField textFieldX;
     private JTextField textFieldY;
     private JTextField textFieldZ;
+
 
     private final Vector3f vector3f;
 
     public Vector3fControl(String title, Vector3f vector3f) {
         this.vector3f = vector3f;
 
-        ((TitledBorder)contentPanel.getBorder()).setTitle("Vector3f: " + title);
+        // ((TitledBorder)contentPanel.getBorder()).setTitle("Vector3f: " + title);
+        titleLabel.setText("Vector3f: " + title);
         refresh();
 
         textFieldX.getDocument().addDocumentListener(listenerX);

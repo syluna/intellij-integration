@@ -1,10 +1,12 @@
 package com.jmonkeystore.ide.viewer;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.viewer.impl.JmeMaterialFileViewerImpl;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +29,11 @@ public class JmeMaterialViewerProvider implements FileEditorProvider {
     @NotNull
     @Override
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+
+        ServiceManager.getService(JmeEngineService.class)
+                .getExternalAssetLoader()
+                .registerRoot(project, virtualFile);
+
         return new JmeMaterialFileViewerImpl(project, virtualFile);
     }
 

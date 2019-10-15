@@ -5,7 +5,6 @@ import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
 import com.jmonkeystore.ide.util.NumberUtils;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -19,11 +18,13 @@ public abstract class QuaternionControl implements JmeEditorControl {
     private JSlider sliderX;
     private JSlider sliderY;
     private JSlider sliderZ;
+    private JLabel titleLabel;
 
     public QuaternionControl(String title, Quaternion quaternion) {
         this.quaternion = quaternion;
 
-        ((TitledBorder)contentPanel.getBorder()).setTitle("Quaternion: " + title);
+        // ((TitledBorder)contentPanel.getBorder()).setTitle("Quaternion: " + title);
+        titleLabel.setText("Quaternion: " + title);
         refresh();
 
         textFieldX.getDocument().addDocumentListener(listenerX);
