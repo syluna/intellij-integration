@@ -34,7 +34,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jmonkeystore.ide.action.importer;
+package com.jmonkeystore.ide.action.importmodel.importer;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.jme3.asset.CloneableSmartAsset;

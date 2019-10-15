@@ -1,4 +1,4 @@
-package com.jmonkeystore.ide.action.importer;
+package com.jmonkeystore.ide.action.importmodel.importer;
 
 /*
  * $Id$

@@ -34,7 +34,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jmonkeystore.ide.action.importer;
+package com.jmonkeystore.ide.action.importmodel.importer;
 
 /**
  *  Performs post-load operations on a model through its ModelInfo

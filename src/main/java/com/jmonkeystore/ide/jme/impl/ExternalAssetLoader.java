@@ -1,5 +1,6 @@
 package com.jmonkeystore.ide.jme.impl;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -131,10 +132,12 @@ public class ExternalAssetLoader {
 
         }
 
-        new SimpleTextDialog(
-                "Load Resource Error",
-                "Unable to handle: " + assetKey.getName()
-        ).show();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            new SimpleTextDialog(
+                    "Load Resource Error",
+                    "Unable to handle: " + assetKey.getName()
+            ).show();
+        });
 
         return null;
 
@@ -172,14 +175,17 @@ public class ExternalAssetLoader {
             if (input.toLowerCase().startsWith(fileDelimiter)) {
                 isFile = true;
                 input = input.substring(fileDelimiter.length());
+                input = removeProtocolDirt(input);
             }
 
-            if (input.toLowerCase().startsWith(jarDelimiter)) {
+            else if (input.toLowerCase().startsWith(jarDelimiter)) {
                 isJar = true;
                 input = input.substring(jarDelimiter.length());
+                input = removeProtocolDirt(input);
             }
-
-            input = removeProtocolDirt(input);
+            else { // there is no "protocol".
+                isFile = true;
+            }
 
             if (isFile) {
 

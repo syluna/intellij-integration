@@ -15,7 +15,7 @@
         <moduleType id="Jmonkey" implementationClass="com.jmonkeystore.ide.newproject.JmeModuleType"/>
 
         <!-- Pre-load the jmonkey engine -->
-        <preloadingActivity implementation="com.jmonkeystore.ide.startup.JmePreloadActivity" />
+        <postStartupActivity implementation="com.jmonkeystore.ide.startup.JmeStartupActivity" />
 
         <!-- The JmonkeyEngine service -->
         <applicationService serviceInterface="com.jmonkeystore.ide.jme.JmeEngineService" serviceImplementation="com.jmonkeystore.ide.jme.impl.JmeEngineServiceImpl"/>
@@ -43,11 +43,21 @@
     </extensions>
 
     <actions>
-        <action id="com.jmonkeystore.ide.action.ImportModelAction"
-                class="com.jmonkeystore.ide.action.ImportModelAction" text="Import Model"
+
+        <action id="com.jmonkeystore.ide.action.importmodel.ImportModelAction"
+                class="com.jmonkeystore.ide.action.importmodel.ImportModelAction" text="Import Model"
                 description="Imports a model">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
+
+        <action id="com.jmonkeystore.ide.action.newscene.NewSceneAction"
+                class="com.jmonkeystore.ide.action.newscene.NewSceneAction" text="Empty Scene"
+                icon="/Icons/jmonkey.png"
+                description="Creates a new JME scene">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
+
+
     </actions>
 
 </idea-plugin>

@@ -2,28 +2,170 @@ package com.jmonkeystore.ide.scene.explorer.impl;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.ui.treeStructure.Tree;
+import com.jme3.asset.AssetManager;
+import com.jme3.environment.EnvironmentCamera;
+import com.jme3.environment.LightProbeFactory;
+import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.light.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.SkyFactory;
+import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
+import com.jmonkeystore.ide.scene.explorer.impl.dialog.NewLightProbeDialog;
+import com.jmonkeystore.ide.scene.explorer.impl.dialog.RenameSpatialDialog;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class SceneTreeContextMenuListener implements MouseListener {
 
     private final Tree tree;
+    private final DefaultMutableTreeNode treeRoot;
 
-    private JPopupMenu spatialPopupMenu;
+    // private MenuElement[] spatialMenuItems;
+
     private JPopupMenu lightPopupMenu;
+    private JPopupMenu nodePopupMenu;
+    private JPopupMenu geomPopupMenu;
 
     private DefaultMutableTreeNode clickedNode;
 
-    public SceneTreeContextMenuListener(Tree tree) {
+    SceneTreeContextMenuListener(Tree tree, DefaultMutableTreeNode treeRoot) {
         this.tree = tree;
-        this.spatialPopupMenu = createSpatialPopupMenu();
+        this.treeRoot = treeRoot;
+
+        // this.spatialMenuItems = createSpatialMenuItems();
+
         this.lightPopupMenu = createLightPopupMenu();
+        this.nodePopupMenu = createNodePopupMenu();
+        this.geomPopupMenu = createGeomPopupMenu();
+    }
+
+    // creates menu items that all spatials have.
+    private MenuElement[] createSpatialMenuItems() {
+
+        JMenuItem renameItem = new JMenuItem("Rename...");
+        renameItem.addActionListener(e -> {
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            RenameSpatialDialog dialog = new RenameSpatialDialog(tree, spatial);
+
+            if (dialog.showAndGet()) {
+                spatial.setName(dialog.getChosenName());
+                ServiceManager.getService(SceneExplorerService.class).refreshScene();
+            }
+        });
+
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        deleteItem.addActionListener(e -> {
+
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                spatial.removeFromParent();
+                ServiceManager.getService(SceneExplorerService.class).refreshScene();
+            });
+        });
+
+        // Lights
+        JMenu lightsMenuItem = new JMenu("Light...");
+
+        // ambient light
+        JMenuItem ambLightMenuItem = new JMenuItem("Ambient Light");
+        ambLightMenuItem.addActionListener(e -> {
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            spatial.addLight(new AmbientLight());
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        lightsMenuItem.add(ambLightMenuItem);
+
+        // directional light
+        JMenuItem dirLightMenuItem = new JMenuItem("Directional Light");
+        dirLightMenuItem.addActionListener(e -> {
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            spatial.addLight(new DirectionalLight());
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        lightsMenuItem.add(dirLightMenuItem);
+
+        // point light
+        JMenuItem pointLightMenuItem = new JMenuItem("Point Light");
+        pointLightMenuItem.addActionListener(e -> {
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            spatial.addLight(new PointLight());
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        lightsMenuItem.add(pointLightMenuItem);
+
+        // spot light
+        JMenuItem spotLightMenuItem = new JMenuItem("Spot Light");
+        spotLightMenuItem.addActionListener(e -> {
+            Spatial spatial = (Spatial) clickedNode.getUserObject();
+            spatial.addLight(new SpotLight());
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        lightsMenuItem.add(spotLightMenuItem);
+
+        // light probe
+        JMenuItem probeLightMenuItem = new JMenuItem("Light Probe");
+        probeLightMenuItem.addActionListener(e -> {
+
+            Spatial scene = (Spatial) treeRoot.getUserObject();
+            NewLightProbeDialog dialog = new NewLightProbeDialog(tree, scene);
+
+            boolean makeProbe = dialog.showAndGet();
+
+            if (makeProbe) {
+
+                Spatial clickedSpatial = (Spatial) clickedNode.getUserObject();
+
+                Spatial spatial = dialog.getSelectedSpatial();
+                EnvironmentCamera environmentCamera = ServiceManager.getService(JmeEngineService.class).getStateManager().getState(EnvironmentCamera.class);
+
+                LightProbeFactory.makeProbe(environmentCamera, spatial, new JobProgressAdapter<LightProbe>() {
+
+                    @Override
+                    public void progress(double value) {
+
+                    }
+
+                    @Override
+                    public void done(LightProbe result) {
+                        result.setAreaType(dialog.getSelectedAreaType());
+                        result.getArea().setRadius(dialog.getRadius());
+
+                        clickedSpatial.addLight(result);
+
+                        EventQueue.invokeLater(() -> ServiceManager.getService(SceneExplorerService.class).refreshScene());
+
+                    }
+                });
+            }
+
+        });
+        lightsMenuItem.add(probeLightMenuItem);
+
+        return new MenuElement[] {
+                renameItem,
+                deleteItem,
+                lightsMenuItem
+        };
+    }
+
+    private void addElements(MenuElement[] elemts, JPopupMenu menu) {
+
+        for (MenuElement menuElement : elemts) {
+
+            if (menuElement instanceof JMenu) {
+                menu.add((JMenu)menuElement);
+            }
+            if (menuElement instanceof JMenuItem) {
+                menu.add((JMenuItem)menuElement);
+            }
+        }
     }
 
     private JPopupMenu createLightPopupMenu() {
@@ -45,47 +187,48 @@ public class SceneTreeContextMenuListener implements MouseListener {
         return menu;
     }
 
-    private JPopupMenu createSpatialPopupMenu() {
-        JPopupMenu menu = new JPopupMenu("Spatial Menu");
-        //JMenuItem addLightMenu = new JMenuItem("Add Light");
+    private JPopupMenu createGeomPopupMenu() {
 
-        JMenuItem ambLightMenuItem = new JMenuItem("Ambient Light");
-        ambLightMenuItem.addActionListener(e -> {
-            Spatial spatial = (Spatial) clickedNode.getUserObject();
-            spatial.addLight(new AmbientLight());
-            ServiceManager.getService(SceneExplorerService.class).refreshScene();
-        });
-        menu.add(ambLightMenuItem);
+        JPopupMenu menu = new JPopupMenu("Geometry Menu");
+        addElements(createSpatialMenuItems(), menu);
 
-        JMenuItem dirLightMenuItem = new JMenuItem("Directional Light");
-        dirLightMenuItem.addActionListener(e -> {
-            Spatial spatial = (Spatial) clickedNode.getUserObject();
-            spatial.addLight(new DirectionalLight());
-            ServiceManager.getService(SceneExplorerService.class).refreshScene();
-        });
-        menu.add(dirLightMenuItem);
+        return menu;
+    }
 
-        // pointlight
-        JMenuItem pointLightMenuItem = new JMenuItem("Point Light");
-        pointLightMenuItem.addActionListener(e -> {
-            Spatial spatial = (Spatial) clickedNode.getUserObject();
-            spatial.addLight(new PointLight());
-            ServiceManager.getService(SceneExplorerService.class).refreshScene();
-        });
-        menu.add(pointLightMenuItem);
+    private JPopupMenu createNodePopupMenu() {
+        JPopupMenu menu = new JPopupMenu("Node Menu");
 
-        // spotlight
-        JMenuItem spotLightMenuItem = new JMenuItem("Spot Light");
-        spotLightMenuItem.addActionListener(e -> {
-            Spatial spatial = (Spatial) clickedNode.getUserObject();
-            spatial.addLight(new SpotLight());
-            ServiceManager.getService(SceneExplorerService.class).refreshScene();
-        });
-        menu.add(spotLightMenuItem);
-
+        addElements(createSpatialMenuItems(), menu);
         menu.add(new JSeparator());
 
-        //menu.add(addLightMenu);
+        JMenuItem addNodeItem = new JMenuItem("Add Node");
+        addNodeItem.addActionListener(e -> {
+            Node node = (Node) clickedNode.getUserObject();
+            node.attachChild(new Node());
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        menu.add(addNodeItem);
+
+        JMenuItem skyControlMenuItem = new JMenuItem("Sky Background");
+        skyControlMenuItem.addActionListener(e -> {
+            Node node = (Node) clickedNode.getUserObject();
+
+            String image = "Textures/Sky/test.png";
+            AssetManager assetManager = ServiceManager.getService(JmeEngineService.class).getAssetManager();
+
+            Node skyNode = new Node("Sky Node");
+            Spatial sky = SkyFactory.createSky(assetManager, image, SkyFactory.EnvMapType.EquirectMap);
+            skyNode.attachChild(sky);
+
+            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                node.attachChild(skyNode);
+                EventQueue.invokeLater(() -> ServiceManager.getService(SceneExplorerService.class).refreshScene());
+            });
+
+
+
+        });
+        menu.add(skyControlMenuItem);
 
         return menu;
     }
@@ -97,33 +240,26 @@ public class SceneTreeContextMenuListener implements MouseListener {
             JTree tree = (JTree) e.getComponent();
             clickedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 
-            if (clickedNode.getUserObject() instanceof Spatial) {
-                spatialPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+            JPopupMenu popupMenu = null;
+
+            if (clickedNode.getUserObject() instanceof Node) {
+                popupMenu = nodePopupMenu;
             }
             else if (clickedNode.getUserObject() instanceof Light) {
-                lightPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+                popupMenu = lightPopupMenu;
+            }
+            else if (clickedNode.getUserObject() instanceof Geometry) {
+                popupMenu = geomPopupMenu;
+            }
+            if (popupMenu != null) {
+                popupMenu.show(e.getComponent(), e.getX(), e.getY());
             }
 
         }
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    @Override public void mousePressed(MouseEvent e) { }
+    @Override public void mouseReleased(MouseEvent e) { }
+    @Override public void mouseEntered(MouseEvent e) { }
+    @Override public void mouseExited(MouseEvent e) { }
 }

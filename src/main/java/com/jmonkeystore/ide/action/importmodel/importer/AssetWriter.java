@@ -35,7 +35,7 @@
  */
 
 
-package com.jmonkeystore.ide.action.importer;
+package com.jmonkeystore.ide.action.importmodel.importer;
 
 import com.google.common.io.Files;
 import com.intellij.openapi.diagnostic.Logger;

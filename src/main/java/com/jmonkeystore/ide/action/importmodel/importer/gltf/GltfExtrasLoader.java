@@ -34,17 +34,24 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jmonkeystore.ide.action.importer.gltf;
+package com.jmonkeystore.ide.action.importmodel.importer.gltf;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.gltf.ExtrasLoader;
+import com.jme3.scene.plugins.gltf.GltfLoader;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
-import java.util.*;
-
-import org.slf4j.*;
-
-import com.google.gson.*;
-
-import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.gltf.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  Attaches GLTF "extras" data to objects as appropriate.
