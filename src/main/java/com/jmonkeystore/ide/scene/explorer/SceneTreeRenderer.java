@@ -1,6 +1,7 @@
 package com.jmonkeystore.ide.scene.explorer;
 
 import com.intellij.openapi.util.IconLoader;
+import com.jme3.anim.AnimComposer;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.light.*;
@@ -62,6 +63,9 @@ public class SceneTreeRenderer implements TreeCellRenderer {
             label.setText(item.getClass().getSimpleName());
 
             if (item instanceof AnimControl) {
+                label.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/animationControl.gif"));
+            }
+            else if (item instanceof AnimComposer) {
                 label.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/animationControl.gif"));
             }
             else if (item instanceof SkeletonControl) {
