@@ -11,7 +11,6 @@ import com.jmonkeystore.ide.util.AtomicFloat;
 import javax.swing.*;
 import java.awt.*;
 
-// https://stackoverflow.com/a/5505512
 public class AnimationControl implements JmeEditorControl {
 
     private final AnimControl animControl;
