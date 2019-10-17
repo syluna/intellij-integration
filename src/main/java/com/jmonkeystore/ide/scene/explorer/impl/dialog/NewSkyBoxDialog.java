@@ -62,9 +62,10 @@ public class NewSkyBoxDialog extends DialogWrapper {
             DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) ((Tree) e.getSource()).getLastSelectedPathComponent();
 
             VirtualFile virtualFile = (VirtualFile) treeNode.getUserObject();
+            String extension = virtualFile.getExtension();
 
             // don't allow the user to select a directory or unsupported image.
-            if (!virtualFile.isDirectory() && selectedFile.getExtension() != null && extensions.contains(selectedFile.getExtension())) {
+            if (!virtualFile.isDirectory()) {
                 selectedFile = virtualFile;
             }
             else { // if the user selected one thing, then another, it would still be the old selection.
