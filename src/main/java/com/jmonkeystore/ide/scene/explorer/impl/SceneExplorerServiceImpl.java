@@ -8,6 +8,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
+import com.jme3.anim.AnimComposer;
 import com.jme3.animation.AnimControl;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.*;
@@ -16,10 +17,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
-import com.jmonkeystore.ide.editor.objects.AnimControlEditor;
-import com.jmonkeystore.ide.editor.objects.GeometryEditor;
-import com.jmonkeystore.ide.editor.objects.JmeObject;
-import com.jmonkeystore.ide.editor.objects.NodeEditor;
+import com.jmonkeystore.ide.editor.objects.*;
 import com.jmonkeystore.ide.editor.objects.light.AmbientLightEditor;
 import com.jmonkeystore.ide.editor.objects.light.DirectionalLightEditor;
 import com.jmonkeystore.ide.editor.objects.light.PointLightEditor;
@@ -239,6 +237,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
         // controls
         registerEditor(AnimControl.class, AnimControlEditor.class);
+        registerEditor(AnimComposer.class, AnimComposerEditor.class);
 
         // lights
         registerEditor(AmbientLight.class, AmbientLightEditor.class);
