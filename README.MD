@@ -22,4 +22,9 @@ This plugin provides the following:
 - Import models.
 - View scene graph
 - Edit properties of a JME object selected in the scene graph.
+- Add and remove objects from the scene.
+- Save a changed scene.
+- Add lights and generate light probes.
+- Create a SkyBox from a selected texture.
+- Drag models into a scene from the project tab. 
 
