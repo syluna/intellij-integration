@@ -2,6 +2,7 @@ package com.jmonkeystore.ide.scene.explorer.impl;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.Tree;
 import com.jme3.asset.AssetManager;
@@ -12,7 +13,6 @@ import com.jme3.light.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 
 public class SceneTreeContextMenuListener implements MouseListener {
 
@@ -225,16 +226,19 @@ public class SceneTreeContextMenuListener implements MouseListener {
             if (proceed && newSkyBoxDialog.getSelectedFile() != null) {
                 Node node = (Node) clickedNode.getUserObject();
 
-                VirtualFile virtualFile = newSkyBoxDialog.getSelectedFile();
+                VirtualFile selectedFile = newSkyBoxDialog.getSelectedFile();
 
-                // String image = "Textures/Sky/test.png";
-                // String image = virtualFile.getUrl();
+                // this relies on the fact that we have a "./src/main/resources/" dir.. This may break.
+                VirtualFile resourcePath = Arrays.stream(ProjectRootManager.getInstance(project).getContentSourceRoots())
+                        .filter(virtualFile -> virtualFile.getPath().endsWith("/resources"))
+                        .findFirst()
+                        .orElse(null);
+
+                String image = selectedFile.getUrl().replace(resourcePath.getUrl(), "");
                 AssetManager assetManager = ServiceManager.getService(JmeEngineService.class).getAssetManager();
 
-                Texture texture = ServiceManager.getService(JmeEngineService.class).getExternalAssetLoader().load(virtualFile.getUrl(), Texture.class);
-
                 Node skyNode = new Node("Sky Node");
-                Spatial sky = SkyFactory.createSky(assetManager, texture, SkyFactory.EnvMapType.EquirectMap);
+                Spatial sky = SkyFactory.createSky(assetManager, image, SkyFactory.EnvMapType.EquirectMap);
                 skyNode.attachChild(sky);
 
                 ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
