@@ -1,6 +1,8 @@
 package com.jmonkeystore.ide.scene.explorer.impl;
 
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.Tree;
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.EnvironmentCamera;
@@ -10,11 +12,14 @@ import com.jme3.light.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
 import com.jmonkeystore.ide.scene.explorer.impl.dialog.NewLightProbeDialog;
+import com.jmonkeystore.ide.scene.explorer.impl.dialog.NewSkyBoxDialog;
 import com.jmonkeystore.ide.scene.explorer.impl.dialog.RenameSpatialDialog;
+import com.jmonkeystore.ide.util.ProjectUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -209,23 +214,35 @@ public class SceneTreeContextMenuListener implements MouseListener {
         });
         menu.add(addNodeItem);
 
-        JMenuItem skyControlMenuItem = new JMenuItem("Sky Background");
+        JMenuItem skyControlMenuItem = new JMenuItem("SkyBox");
         skyControlMenuItem.addActionListener(e -> {
-            Node node = (Node) clickedNode.getUserObject();
 
-            String image = "Textures/Sky/test.png";
-            AssetManager assetManager = ServiceManager.getService(JmeEngineService.class).getAssetManager();
+            Project project = ProjectUtils.getActiveProject();
 
-            Node skyNode = new Node("Sky Node");
-            Spatial sky = SkyFactory.createSky(assetManager, image, SkyFactory.EnvMapType.EquirectMap);
-            skyNode.attachChild(sky);
+            NewSkyBoxDialog newSkyBoxDialog = new NewSkyBoxDialog(project);
+            boolean proceed = newSkyBoxDialog.showAndGet();
 
-            ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
-                node.attachChild(skyNode);
-                EventQueue.invokeLater(() -> ServiceManager.getService(SceneExplorerService.class).refreshScene());
-            });
+            if (proceed && newSkyBoxDialog.getSelectedFile() != null) {
+                Node node = (Node) clickedNode.getUserObject();
 
+                VirtualFile virtualFile = newSkyBoxDialog.getSelectedFile();
 
+                // String image = "Textures/Sky/test.png";
+                // String image = virtualFile.getUrl();
+                AssetManager assetManager = ServiceManager.getService(JmeEngineService.class).getAssetManager();
+
+                Texture texture = ServiceManager.getService(JmeEngineService.class).getExternalAssetLoader().load(virtualFile.getUrl(), Texture.class);
+
+                Node skyNode = new Node("Sky Node");
+                Spatial sky = SkyFactory.createSky(assetManager, texture, SkyFactory.EnvMapType.EquirectMap);
+                skyNode.attachChild(sky);
+
+                ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+                    node.attachChild(skyNode);
+                    EventQueue.invokeLater(() -> ServiceManager.getService(SceneExplorerService.class).refreshScene());
+                });
+
+            }
 
         });
         menu.add(skyControlMenuItem);

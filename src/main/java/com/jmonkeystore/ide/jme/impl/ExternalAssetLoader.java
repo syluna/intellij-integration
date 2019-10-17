@@ -8,6 +8,7 @@ import com.jme3.asset.*;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
+import com.jme3.texture.Texture;
 import com.jmonkeystore.ide.util.SimpleTextDialog;
 import javassist.URLClassPath;
 import org.jetbrains.annotations.Nullable;
@@ -95,6 +96,13 @@ public class ExternalAssetLoader {
 
                 return (T) material;
             }
+            else if (clazz.isAssignableFrom(Texture.class)) {
+                Texture texture = assetManager.loadTexture(ext.name);
+                assetManager.unregisterLocator(ext.dir, FileLocator.class);
+                assetManager.deleteFromCache((TextureKey) texture.getKey());
+
+                return (T)texture;
+            }
 
         }
         else if (ext.isJar) {
@@ -128,6 +136,24 @@ public class ExternalAssetLoader {
 
                     return (T) material;
                 }
+            }
+            else if (clazz.isAssignableFrom(Texture.class)) {
+
+                try {
+                    Texture texture = assetManager.loadTexture(ext.fullPath);
+                    return (T) texture;
+                } catch (AssetNotFoundException ex) {
+
+                    File jarFile = new File(ext.jarUrl);
+
+                    addToClasspath(getClass().getClassLoader(), jarFile);
+                    Texture texture = assetManager.loadTexture(ext.fullPath);
+                    removeFromClassPath(getClass().getClassLoader(), jarFile);
+
+                    return (T) texture;
+
+                }
+
             }
 
         }
