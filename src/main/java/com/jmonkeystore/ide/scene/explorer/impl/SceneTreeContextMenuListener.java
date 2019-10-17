@@ -123,7 +123,7 @@ public class SceneTreeContextMenuListener implements MouseListener {
 
             boolean makeProbe = dialog.showAndGet();
 
-            if (makeProbe) {
+            if (makeProbe && dialog.getSelectedSpatial() != null) {
 
                 Spatial clickedSpatial = (Spatial) clickedNode.getUserObject();
 
