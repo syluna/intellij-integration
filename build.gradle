@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.jmonkeystore'
-version '1.0.2'
+version '1.0.3'
 
 sourceCompatibility = 1.8
 
@@ -21,7 +21,7 @@ configurations {
 }
 
 project.ext {
-    jmeVer = "3.3.0-alpha2"
+    jmeVer = "3.3.0-alpha5"
 }
 
 dependencies {
@@ -36,7 +36,6 @@ dependencies {
 
     // compile group: 'org.lwjgl.lwjgl', name: 'lwjgl', version: '2.9.3'
 
-
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"
 }
 
@@ -48,6 +47,16 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
+
+    <h3>1.0.3</h3>
+    <ul>
+        <li>Add Nodes (Right-Click on a node in scene explorer).</li>
+        <li>Drag models into the scene explorer from the project tab.</li>
+        <li>Delete things (right-click in scene explorer).</li>
+        <li>Save Changes in Scene Explorer</li>
+        <li>Add a SkyBox (Right Click in Scene Explorer)</li>
+        <li>Generate LightProbes</li>
+    </ul>
 
     <h3>1.0.2</h3>
     <ul>
