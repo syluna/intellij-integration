@@ -3,6 +3,7 @@ package com.jmonkeystore.ide.editor.controls.anim;
 import com.intellij.openapi.components.ServiceManager;
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
+import com.jme3.anim.tween.action.Action;
 import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.util.AtomicFloat;
@@ -24,6 +25,7 @@ public class AnimComposerControl implements JmeEditorControl {
 
     private final DefaultBoundedRangeModel animTimelineModel = new DefaultBoundedRangeModel(0, 1, 0, 200);
     private AnimClip animClip;
+    private Action action;
 
     private AtomicFloat animSpeed = new AtomicFloat(1.0f);
 
@@ -68,18 +70,21 @@ public class AnimComposerControl implements JmeEditorControl {
         speedSlider.addChangeListener(e -> {
             JSlider slider = (JSlider) e.getSource();
             animSpeed.set(slider.getValue() / 100f);
-            // animChannel.setSpeed(animSpeed.get());
-            animComposer.setGlobalSpeed(animSpeed.get());
+
+            if (action != null) {
+                action.setSpeed(animSpeed.get());
+            }
         });
 
         playButton.addActionListener(e -> {
-            animComposer.setCurrentAction(animClip.getName());
-            // animChannel.setSpeed(animSpeed.get());
-            // animChannel.setLoopMode(LoopMode.Loop);
+           action = animComposer.setCurrentAction(animClip.getName());
+           action.setSpeed(animSpeed.get());
         });
 
         stopButton.addActionListener(e -> {
-            // animChannel.setSpeed(0);
+            if (action != null) {
+                action.setSpeed(0);
+            }
         });
 
     }
@@ -96,7 +101,7 @@ public class AnimComposerControl implements JmeEditorControl {
 
     @Override
     public void cleanup() {
-
+        animComposer.reset();
     }
 
 }
