@@ -34,9 +34,9 @@ dependencies {
     compile "org.jmonkeyengine:jme3-jogg:$jmeVer"
     compile "org.jmonkeyengine:jme3-terrain:$jmeVer"
 
-    // compile group: 'org.lwjgl.lwjgl', name: 'lwjgl', version: '2.9.3'
-
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"
+
+    implementation "org.reflections:reflections:0.9.11"
 }
 
 
