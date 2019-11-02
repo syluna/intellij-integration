@@ -155,6 +155,7 @@ public class JmeModelEditorUI implements Disposable {
 
         if (spatial.getWorldBound() != null) {
             ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
+
                 this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
 
                 this.bbGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
@@ -176,7 +177,7 @@ public class JmeModelEditorUI implements Disposable {
                 this.meshGeom = new Geometry("Mesh Highlight", geometry.getMesh());
                 this.meshGeom.setLocalRotation(geometry.getWorldRotation());
                 this.meshGeom.setLocalTranslation(geometry.getWorldTranslation());
-                this.meshGeom.setLocalScale(this.meshGeom.getLocalScale());
+                this.meshGeom.setLocalScale(geometry.getWorldScale());
 
                 this.meshGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
                 this.meshGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);

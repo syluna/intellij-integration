@@ -10,9 +10,11 @@ import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.light.*;
+import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
@@ -250,6 +252,23 @@ public class SceneTreeContextMenuListener implements MouseListener {
 
         });
         menu.add(skyControlMenuItem);
+
+        JMenu geomsMenu = new JMenu("Geometry");
+        JMenuItem boxMenuItem = new JMenuItem("Box");
+        boxMenuItem.addActionListener(actionEvent -> {
+            Node node = (Node) clickedNode.getUserObject();
+
+            AssetManager assetManager = ServiceManager.getService(JmeEngineService.class).getAssetManager();
+
+            Box box = new Box(1,1,1);
+            Geometry geometry = new Geometry("Box", box);
+            geometry.setMaterial(new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md"));
+
+            node.attachChild(geometry);
+            ServiceManager.getService(SceneExplorerService.class).refreshScene();
+        });
+        geomsMenu.add(boxMenuItem);
+        menu.add(geomsMenu);
 
         return menu;
     }

@@ -16,6 +16,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jmonkeystore.ide.editor.controls.ReflectionEditor;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
 import com.jmonkeystore.ide.editor.objects.*;
 import com.jmonkeystore.ide.editor.objects.light.AmbientLightEditor;
@@ -114,6 +115,11 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             if (treeNode != null) {
                 Object item = treeNode.getUserObject();
 
+                ReflectionEditor reflectionEditor = new ReflectionEditor(item);
+                propertyEditorService.setWindowContent(reflectionEditor);
+
+
+
                 // node/geometry/mesh highlighter
                 if (modelEditor != null) {
 
@@ -142,6 +148,10 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                                 .getState(NormalViewerState.class)
                                 .focus((Spatial) item);
                     });
+                }
+
+                if (true) {
+                    return;
                 }
 
                 boolean foundEditor = false;
