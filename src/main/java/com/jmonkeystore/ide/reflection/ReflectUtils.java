@@ -1,8 +1,10 @@
 package com.jmonkeystore.ide.reflection;
 
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jmonkeystore.ide.editor.component.*;
 
 import java.lang.reflect.Constructor;
@@ -113,12 +115,14 @@ public class ReflectUtils {
 
         public ComponentBuilder(UniqueProperties props) {
 
-
             Map<Class, Class<? extends Component>> componentClasses = new HashMap<>();
+            componentClasses.put(boolean.class, BooleanComponent.class);
+            componentClasses.put(ColorRGBA.class, ColorRGBAComponent.class);
             componentClasses.put(Enum.class, EnumComponent.class);
-            // componentClasses.put(float.class, FloatComponent.class);
+            componentClasses.put(float.class, FloatComponent.class);
             componentClasses.put(Quaternion.class, QuaternionComponent.class);
             componentClasses.put(Vector3f.class, Vector3fComponent.class);
+            componentClasses.put(Vector4f.class, Vector4fComponent.class);
             componentClasses.put(Material.class, MaterialComponent.class);
 
             for (Method getter : props.getGetters()) {
