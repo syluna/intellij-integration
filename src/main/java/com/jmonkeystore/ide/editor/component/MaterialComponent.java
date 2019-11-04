@@ -1,5 +1,7 @@
 package com.jmonkeystore.ide.editor.component;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -7,10 +9,14 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.VarType;
+import com.jme3.texture.Texture2D;
 import com.jme3.util.ListMap;
+import com.jmonkeystore.ide.jme.ColorUtils;
+import com.jmonkeystore.ide.jme.JmeEngineService;
 import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MaterialComponent extends Component {
+
+    // private static final Logger log = Logger.getInstance(MaterialComponent.class);
 
     private JPanel contentPanel;
 
@@ -145,7 +153,6 @@ public class MaterialComponent extends Component {
                         .findFirst()
                         .ifPresent(setParam -> {
 
-                            // Vector3fComponent vector3fComponent = new Vector3fComponent();
                             BooleanComponent booleanComponent = new BooleanComponent();
                             booleanComponent.setPropertyName(matParam.getName());
 
@@ -162,6 +169,41 @@ public class MaterialComponent extends Component {
 
             }
 
+            else if (varyType == VarType.Texture2D) {
+
+                setParams.entrySet().stream()
+                        .filter(entry -> entry.getKey().equalsIgnoreCase(matParam.getName()))
+                        .findFirst()
+                        .ifPresent(setParam -> {
+
+                            Texture2DComponent texture2DComponent = new Texture2DComponent();
+                            texture2DComponent.setPropertyName(matParam.getName());
+
+                            Texture2D fVal = (Texture2D) setParam.getValue().getValue();
+                            texture2DComponent.setValue(fVal);
+
+                            texture2DComponent.setPropertyChangedEvent(value -> {
+                                // Texture2D val = (Texture2D)value;
+
+                                String val = (String) value;
+
+                                // Texture2D texture2D = ServiceManager.getService(JmeEngineService.class).getExternalAssetLoader().load(val, Texture2D.class);
+                                try {
+                                    Texture2D texture2D = (Texture2D) ServiceManager.getService(JmeEngineService.class).getAssetManager().loadTexture(val);
+                                    material.setTexture(matParam.getName(), texture2D);
+                                }
+                                catch (AssetNotFoundException ex) {
+                                    // do nothing.
+                                    System.out.println("Texture2D Not Found: " + val);
+                                    // log.info("Texture2D Not Found: " + val);
+                                }
+
+                            });
+
+                            contentPanel.add(texture2DComponent.getJComponent());
+                        });
+
+            }
 
         }
 

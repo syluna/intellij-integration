@@ -1,38 +1,60 @@
 package com.jmonkeystore.ide.editor.component;
 
 import com.jme3.math.ColorRGBA;
-import org.jdesktop.swingx.VerticalLayout;
+import com.jmonkeystore.ide.jme.ColorUtils;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.reflect.Method;
 
 public class ColorRGBAComponent extends Component {
 
     private JPanel contentPanel;
     private JLabel propertyNameLabel;
-    private JColorChooser jColorChooser;
+    private JLabel colorValueLabel;
+    private JPanel colorPanel;
 
     public ColorRGBAComponent() {
         super(null, null, null);
-        initCustomLayout();
+
+        colorPanel.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                ColorDialog colorDialog = new ColorDialog(colorPanel.getBackground());
+
+                if (colorDialog.showAndGet()) {
+                    setValue(ColorUtils.toColorRGBA(colorDialog.getColor()));
+                }
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
     }
 
     public ColorRGBAComponent(Object parent, Method getter, Method setter) {
         super(parent, getter, setter);
-        initCustomLayout();
     }
 
-    // intellij doesn't let us add a color chooser in the editor, so we have to set it up ourselves.
-    private void initCustomLayout() {
-
-        contentPanel.setLayout(new VerticalLayout());
-
-        this.jColorChooser = new JColorChooser();
-        this.contentPanel.add(jColorChooser);
-
-        propertyNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-    }
 
     @Override
     public JComponent getJComponent() {
@@ -43,14 +65,13 @@ public class ColorRGBAComponent extends Component {
     public void setValue(Object value) {
         super.setValue(value);
 
-        if (!isBinded()) {
-            ColorRGBA newVal = (ColorRGBA) value;
+        ColorRGBA newVal = (ColorRGBA) value;
 
-            SwingUtilities.invokeLater(() -> {
-                jColorChooser.setColor(fromColorRGBA(newVal));
-                bind();
-            });
-        }
+        SwingUtilities.invokeLater(() -> {
+            colorPanel.setBackground(ColorUtils.fromColorRGBA(newVal));
+            colorValueLabel.setText(newVal.toString());
+            bind();
+        });
 
     }
 
@@ -58,9 +79,13 @@ public class ColorRGBAComponent extends Component {
     public void bind() {
         super.bind();
 
+        /*
         this.jColorChooser.getSelectionModel().addChangeListener(e -> {
             setValue(toColorRGBA(jColorChooser.getColor()));
         });
+
+         */
+
     }
 
     @Override
@@ -69,23 +94,6 @@ public class ColorRGBAComponent extends Component {
         propertyNameLabel.setText("ColorRGBA: " + propertyName);
     }
 
-    private ColorRGBA toColorRGBA(Color color) {
 
-        return new ColorRGBA(
-                color.getRed() / 255f,
-                color.getGreen() / 255f,
-                color.getBlue() / 255f,
-                color.getAlpha() / 255f
-        );
-    }
-
-    private Color fromColorRGBA(ColorRGBA colorRGBA) {
-        return new Color(
-                colorRGBA.r,
-                colorRGBA.g,
-                colorRGBA.b,
-                colorRGBA.a
-        );
-    }
 
 }
