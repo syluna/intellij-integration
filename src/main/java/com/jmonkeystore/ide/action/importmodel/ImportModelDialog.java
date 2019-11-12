@@ -48,7 +48,7 @@ public class ImportModelDialog extends DialogWrapper {
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Models",
-                    "mesh.xml", "blend", "gltf"
+                    "mesh.xml", "blend", "gltf", "glb"
             );
             fileChooser.setFileFilter(filter);
 
