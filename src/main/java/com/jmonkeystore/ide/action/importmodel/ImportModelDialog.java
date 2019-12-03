@@ -78,7 +78,8 @@ public class ImportModelDialog extends DialogWrapper {
 
                     jmePanel.getRootNode().addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal(), ColorRGBA.White.mult(0.7f)));
 
-                    if ("gltf".equalsIgnoreCase(Files.getFileExtension(fileChooser.getSelectedFile().getAbsolutePath()))) {
+                    if ("gltf".equalsIgnoreCase(Files.getFileExtension(fileChooser.getSelectedFile().getAbsolutePath())) ||
+                        "glb".equalsIgnoreCase(Files.getFileExtension(fileChooser.getSelectedFile().getAbsolutePath()))) {
 
                         model = engineService.getExternalAssetLoader().load(GltfExtrasLoader.createModelKey(fileChooser.getSelectedFile().getAbsolutePath()), Spatial.class);
 
