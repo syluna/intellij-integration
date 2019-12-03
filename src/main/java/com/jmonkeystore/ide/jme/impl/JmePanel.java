@@ -28,7 +28,7 @@ public class JmePanel extends AwtPanel {
         camera = new Camera(640, 480);
 
         float aspectRatio = (float)camera.getWidth() / (float)camera.getHeight();
-        camera.setFrustumPerspective( 45, aspectRatio, 0.1f, 1000f);
+        camera.setFrustumPerspective( 45, aspectRatio, 0.1f, 10000f);
 
         camera.lookAtDirection(new Vector3f(0, 0, -1), Vector3f.UNIT_Y);
         camera.setLocation(new Vector3f(0, 0, 15));
