@@ -27,11 +27,11 @@
         <applicationService serviceInterface="com.jmonkeystore.ide.scene.editor.PropertyEditorService" serviceImplementation="com.jmonkeystore.ide.scene.editor.impl.PropertyEditorServiceImpl"/>
 
         <!-- .j3o file type and editor -->
-        <fileType name="Jmonkey Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
+        <fileType name="Jme Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
         <fileEditorProvider implementation="com.jmonkeystore.ide.editor.JmeModelEditorProvider"/>
 
         <!-- .j3m file type and editor -->
-        <fileType name="Jmonkey Material" implementationClass="com.jmonkeystore.ide.filetype.JmeMaterialFileType" fieldName="INSTANCE" language="Jme.Material" extensions="j3m"/>
+        <fileType name="Jme Material" implementationClass="com.jmonkeystore.ide.filetype.JmeMaterialFileType" fieldName="INSTANCE" language="Jme.Material" extensions="j3m"/>
         <fileEditorProvider implementation="com.jmonkeystore.ide.viewer.JmeMaterialViewerProvider"/>
 
         <!-- Scene Node Tool Window -->
