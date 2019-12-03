@@ -12,7 +12,7 @@ public class JmeMaterialFileType extends LanguageFileType {
     public static final JmeMaterialFileType INSTANCE = new JmeMaterialFileType();
 
     private JmeMaterialFileType() {
-        super(JmeModelLanguage.INSTANCE);
+        super(JmeMaterialLanguage.INSTANCE);
     }
 
     @NotNull
