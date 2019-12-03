@@ -6,6 +6,7 @@ import com.jmonkeystore.ide.jme.ColorUtils;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ColorRGBAComponent extends Component {
@@ -17,6 +18,23 @@ public class ColorRGBAComponent extends Component {
 
     public ColorRGBAComponent() {
         super(null, null, null);
+
+        addColorPanelListener();
+    }
+
+    public ColorRGBAComponent(Object parent, Method getter, Method setter) {
+        super(parent, getter, setter);
+
+        try {
+            setValue(getter.invoke(parent));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        addColorPanelListener();
+    }
+
+    private void addColorPanelListener() {
 
         colorPanel.addMouseListener(new MouseListener() {
             @Override
@@ -49,12 +67,8 @@ public class ColorRGBAComponent extends Component {
 
             }
         });
-    }
 
-    public ColorRGBAComponent(Object parent, Method getter, Method setter) {
-        super(parent, getter, setter);
     }
-
 
     @Override
     public JComponent getJComponent() {
