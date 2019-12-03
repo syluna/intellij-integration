@@ -6,6 +6,7 @@ import org.jdesktop.swingx.VerticalLayout;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class Texture2DComponent extends Component {
@@ -25,6 +26,13 @@ public class Texture2DComponent extends Component {
         super(parent, getter, setter);
 
         initCustomLayout();
+
+        try {
+            setValue(getter.invoke(parent));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void initCustomLayout() {
@@ -46,12 +54,19 @@ public class Texture2DComponent extends Component {
         super.setValue(value);
 
         if (!isBinded()) {
-            // String newVal = (String) value;
+
             Texture2D texture2D = (Texture2D) value;
 
             SwingUtilities.invokeLater(() -> {
-                this.pathTextField.setText(texture2D.getKey().getName());
-                // this.imagePanel.setImage("./src/main/resources/" + texture2D.getKey().getName());
+
+                // if the texture is embedded it won't have a key.
+                if (texture2D.getKey() != null) {
+                    this.pathTextField.setText(texture2D.getKey().getName());
+                }
+                else {
+                    this.pathTextField.setText(texture2D.getName());
+                }
+
                 this.imagePanel.setTexture(texture2D);
                 this.imagePanel.revalidate();
 
