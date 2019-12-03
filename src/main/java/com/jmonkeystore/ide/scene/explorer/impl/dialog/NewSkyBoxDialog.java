@@ -36,7 +36,7 @@ public class NewSkyBoxDialog extends DialogWrapper {
     private void createTree(Project project) {
 
         VirtualFile resourcePath = Arrays.stream(ProjectRootManager.getInstance(project).getContentSourceRoots())
-                .filter(virtualFile -> virtualFile.getPath().endsWith("/resources"))
+                .filter(virtualFile -> virtualFile.getPath().toLowerCase().endsWith("src/main/resources"))
                 .findFirst()
                 .orElse(null);
 

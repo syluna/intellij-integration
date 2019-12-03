@@ -232,7 +232,7 @@ public class SceneTreeContextMenuListener implements MouseListener {
 
                 // this relies on the fact that we have a "./src/main/resources/" dir.. This may break.
                 VirtualFile resourcePath = Arrays.stream(ProjectRootManager.getInstance(project).getContentSourceRoots())
-                        .filter(virtualFile -> virtualFile.getPath().endsWith("/resources"))
+                        .filter(virtualFile -> virtualFile.getPath().endsWith("src/main/resources"))
                         .findFirst()
                         .orElse(null);
 
