@@ -27,6 +27,9 @@ public class JmeModuleWizardStep extends ModuleWizardStep implements Disposable 
 
     private final String[] versions = {
             "3.2.4-stable",
+            "3.3.0-alpha5",
+            "3.3.0-alpha4",
+            "3.3.0-alpha3",
             "3.3.0-alpha2",
             "3.3.0-alpha1",
             "3.2.3-stable",
