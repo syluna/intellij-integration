@@ -30,8 +30,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(SwingCanvasContext.class);
-        settings.setWidth(640);
-        settings.setHeight(480);
+        //settings.setWidth(640);
+        //settings.setHeight(480);
         settings.setFrameRate(60);
         settings.setResizable(true);
         settings.setAudioRenderer(null);
