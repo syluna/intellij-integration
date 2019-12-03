@@ -52,7 +52,7 @@ public class ReflectUtils {
 
                 String suffix = getter.getName().substring(3).toLowerCase();
 
-                Method setMethod = setters.stream().filter(m -> m.getName().toLowerCase().endsWith(suffix))
+                Method setMethod = setters.stream().filter(m -> m.getName().substring(3).toLowerCase().equals(suffix))
                         .findFirst()
                         .orElse(null);
 
@@ -66,7 +66,7 @@ public class ReflectUtils {
 
                 String suffix = setter.getName().substring(3).toLowerCase();
 
-                Method getter = getters.stream().filter(g -> g.getName().toLowerCase().endsWith(suffix))
+                Method getter = getters.stream().filter(g -> g.getName().substring(3).toLowerCase().equals(suffix))
                         .findFirst()
                         .orElse(null);
 
@@ -91,7 +91,7 @@ public class ReflectUtils {
 
                 String suffix = getter.getName().substring(3).toLowerCase();
 
-                Method setMethod = setters.stream().filter(m -> m.getName().toLowerCase().endsWith(suffix))
+                Method setMethod = setters.stream().filter(m -> m.getName().substring(3).toLowerCase().equals(suffix))
                         .findFirst()
                         .orElse(null);
 
@@ -102,7 +102,7 @@ public class ReflectUtils {
             this.getters.addAll(getters);
             this.setters.addAll(setters);
 
-            this.getters.sort(Comparator.comparing(Method::getName));
+            // this.getters.sort(Comparator.comparing(Method::getName));
 
 
         }
@@ -161,74 +161,9 @@ public class ReflectUtils {
 
                 }
 
-                /*
-
-                if (getter.getReturnType() == Vector3f.class) {
-
-                    Method setter = props.getSetters().stream()
-                            .filter(s -> s.getName().substring(3).equalsIgnoreCase(getter.getName().substring(3)))
-                            .findFirst()
-                            .orElse(null);
-
-                    Vector3fComponent vector3fComponent = new Vector3fComponent(props.getObject(), getter, setter);
-                    vector3fComponent.setPropertyName(getter.getName().substring(3));
-
-                    Vector3f value = new Vector3f();
-
-                    try {
-                        value = (Vector3f) getter.invoke(props.getObject());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-
-
-
-                    // we need to tidy this up a lot.
-
-                    vector3fComponent.setValue(value);
-                    // vector3fComponent.setReflectedProperty(new ReflectedProperty(props.getObject(), getter, setter, vector3fComponent));
-
-                    components.add(vector3fComponent);
-                    // reflectedProperties.add();
-
-                }
-
-
-                else if (getter.getReturnType().isEnum()) {
-
-                    EnumComponent enumComponent = new EnumComponent();
-                    enumComponent.setPropertyName(getter.getName().substring(3));
-
-                    Class<? extends Enum> values = (Class<? extends Enum>) getter.getReturnType();
-                    enumComponent.setEnumValues(values);
-
-                    try {
-                        Enum currentVal = (Enum) getter.invoke(props.getObject());
-                        enumComponent.setValue(currentVal);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-
-                    Method setter = props.getSetters().stream()
-                            .filter(s -> s.getName().substring(3).equalsIgnoreCase(getter.getName().substring(3)))
-                            .findFirst()
-                            .orElse(null);
-
-                    components.add(enumComponent);
-                    reflectedProperties.add(new ReflectedProperty(props.getObject(), getter, setter, enumComponent));
-                }
-                */
-
-
             }
 
         }
-
-        /*
-        public List<ReflectedProperty> getReflectedProperties() {
-            return reflectedProperties;
-        }
-        */
 
         public List<Component> getComponents() {
             return components;
