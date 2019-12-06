@@ -4,18 +4,12 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.jme3.asset.plugins.FileLocator;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
-import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
