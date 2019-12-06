@@ -1,11 +1,9 @@
 package com.jmonkeystore.ide.editor.controls;
 
-import javax.swing.*;
+import com.jmonkeystore.ide.editor.objects.JmeObject;
 
-public interface JmeEditorControl {
 
-    JComponent getJComponent();
+public interface JmeEditorControl extends JmeObject {
+
     void refresh();
-
-    void cleanup();
 }
