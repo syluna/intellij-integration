@@ -1,12 +1,12 @@
 package com.jmonkeystore.ide.action.importmodel.importer;
 
+import com.google.common.io.Files;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.action.importmodel.importer.gltf.GltfExtrasLoader;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.util.SimpleTextDialog;
-import org.gradle.internal.impldep.com.google.common.io.Files;
 
 import java.io.File;
 import java.util.ArrayList;
