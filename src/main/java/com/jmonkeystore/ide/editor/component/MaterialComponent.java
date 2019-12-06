@@ -11,12 +11,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.ListMap;
-import com.jmonkeystore.ide.jme.ColorUtils;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
