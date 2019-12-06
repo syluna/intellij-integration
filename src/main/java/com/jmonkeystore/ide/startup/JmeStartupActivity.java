@@ -5,10 +5,12 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.startup.StartupActivity;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.messages.MessageBus;
 import com.jme3.system.JmeSystem;
 import com.jmonkeystore.ide.JmeVetoableProjectListener;
 import com.jmonkeystore.ide.ModelFileAdapter;
+import com.jmonkeystore.ide.ProjectPluginListener;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.natives.SecondaryNativeLoader;
 import com.jmonkeystore.ide.scene.editor.PropertyEditorService;
@@ -40,5 +42,7 @@ public class JmeStartupActivity implements StartupActivity {
         messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new ModelFileAdapter());
 
         ProjectManager.getInstance().addProjectManagerListener(new JmeVetoableProjectListener());
+
+        VirtualFileManager.getInstance().addVirtualFileListener(new ProjectPluginListener());
     }
 }
