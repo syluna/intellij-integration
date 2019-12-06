@@ -11,6 +11,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class GeometryEditor implements JmeObject {
 
     private final Geometry geometry;

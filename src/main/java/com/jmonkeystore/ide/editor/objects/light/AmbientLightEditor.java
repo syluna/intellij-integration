@@ -10,6 +10,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class AmbientLightEditor implements JmeObject {
 
     private final AmbientLight ambientLight;

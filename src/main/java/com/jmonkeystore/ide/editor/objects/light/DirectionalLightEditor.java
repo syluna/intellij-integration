@@ -12,6 +12,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class DirectionalLightEditor implements JmeObject {
 
     private final DirectionalLight directionalLight;

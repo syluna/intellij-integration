@@ -6,6 +6,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class AnimControlEditor implements JmeObject {
 
     private JPanel content;

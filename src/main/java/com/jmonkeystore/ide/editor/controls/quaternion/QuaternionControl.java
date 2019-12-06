@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+@Deprecated
 public abstract class QuaternionControl implements JmeEditorControl {
 
     private final Quaternion quaternion;

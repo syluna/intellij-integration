@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
+@Deprecated
 public abstract  class ColorControl implements JmeEditorControl {
 
     private final ColorRGBA jmeColor;

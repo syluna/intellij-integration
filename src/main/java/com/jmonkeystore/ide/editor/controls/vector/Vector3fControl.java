@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+@Deprecated
 public abstract class Vector3fControl implements JmeEditorControl {
 
     private JPanel contentPanel;

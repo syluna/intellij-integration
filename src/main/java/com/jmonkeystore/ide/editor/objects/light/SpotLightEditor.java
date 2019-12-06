@@ -13,6 +13,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class SpotLightEditor implements JmeObject {
 
     private final SpotLight spotLight;

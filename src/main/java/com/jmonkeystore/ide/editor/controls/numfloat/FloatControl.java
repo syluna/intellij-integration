@@ -8,6 +8,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+@Deprecated
 public abstract class FloatControl implements JmeEditorControl {
 
 

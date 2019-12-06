@@ -11,6 +11,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
 
+@Deprecated
 public class NodeEditor implements JmeObject {
 
     private JPanel content;
