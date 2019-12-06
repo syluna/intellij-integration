@@ -28,6 +28,7 @@ public class ComponentBuilder {
 
         // add the default supported components
         // these should be all the objects commonly used in jmonkey.
+
         componentClasses.put(boolean.class, BooleanComponent.class);
         componentClasses.put(ColorRGBA.class, ColorRGBAComponent.class);
         componentClasses.put(Enum.class, EnumComponent.class);
@@ -35,6 +36,7 @@ public class ComponentBuilder {
         componentClasses.put(Quaternion.class, QuaternionComponent.class);
         componentClasses.put(Vector3f.class, Vector3fComponent.class);
         componentClasses.put(Vector4f.class, Vector4fComponent.class);
+
         componentClasses.put(Material.class, MaterialComponent.class);
 
     }
