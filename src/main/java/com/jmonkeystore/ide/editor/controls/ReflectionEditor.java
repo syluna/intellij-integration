@@ -1,5 +1,7 @@
 package com.jmonkeystore.ide.editor.controls;
 
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
 import com.jmonkeystore.ide.editor.component.Component;
 import com.jmonkeystore.ide.editor.objects.JmeObject;
 import com.jmonkeystore.ide.reflection.ComponentBuilder;
@@ -7,6 +9,7 @@ import com.jmonkeystore.ide.reflection.UniqueProperties;
 import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 public class ReflectionEditor implements JmeObject {
 
@@ -19,8 +22,11 @@ public class ReflectionEditor implements JmeObject {
 
         this.contentPanel = new JPanel(new VerticalLayout());
 
-        // ReflectUtils.UniqueProperties uniqueProperties = new ReflectUtils.UniqueProperties(object);
-        // ReflectUtils.ComponentBuilder componentBuilder = new ReflectUtils.ComponentBuilder(uniqueProperties);
+        Border border = BorderFactory.createTitledBorder(object.getClass().getSimpleName());
+
+
+        this.contentPanel.setBorder(border);
+
 
         UniqueProperties uniqueProperties = new UniqueProperties(object);
         ComponentBuilder componentBuilder = new ComponentBuilder(uniqueProperties);
@@ -32,6 +38,32 @@ public class ReflectionEditor implements JmeObject {
 
         for (Component component : componentBuilder.getComponents()) {
             contentPanel.add(component.getJComponent());
+        }
+
+        // if this is a Spatial it will have a getControl and getLightList
+        if (object instanceof Spatial) {
+
+            Spatial spatial = (Spatial) object;
+
+            int controlsCount = spatial.getNumControls();
+
+            if (controlsCount > 0) {
+
+                for (int i = 0; i < controlsCount; i++) {
+
+                    Control control = spatial.getControl(i);
+
+                    UniqueProperties controlUniqueProperties = new UniqueProperties(control);
+                    ComponentBuilder controlComponentBuilder = new ComponentBuilder(controlUniqueProperties);
+                    controlComponentBuilder.build();
+
+                    for (Component component : controlComponentBuilder.getComponents()) {
+                        contentPanel.add(component.getJComponent());
+                    }
+                }
+
+            }
+
         }
     }
 
