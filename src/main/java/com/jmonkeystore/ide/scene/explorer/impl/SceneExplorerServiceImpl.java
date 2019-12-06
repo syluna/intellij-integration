@@ -8,21 +8,14 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
-import com.jme3.anim.AnimComposer;
-import com.jme3.animation.AnimControl;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.light.*;
+import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jmonkeystore.ide.editor.controls.ReflectionEditor;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
-import com.jmonkeystore.ide.editor.objects.*;
-import com.jmonkeystore.ide.editor.objects.light.AmbientLightEditor;
-import com.jmonkeystore.ide.editor.objects.light.DirectionalLightEditor;
-import com.jmonkeystore.ide.editor.objects.light.PointLightEditor;
-import com.jmonkeystore.ide.editor.objects.light.SpotLightEditor;
 import com.jmonkeystore.ide.editor.ui.JmeModelEditorUI;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
@@ -38,15 +31,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SceneExplorerServiceImpl implements SceneExplorerService {
 
-    private final Map<Class<?>, Class<? extends JmeObject>> registeredEditors = new HashMap<>();
+    // private final Map<Class<?>, Class<? extends JmeObject>> registeredEditors = new HashMap<>();
 
     private JBScrollPane windowContent;
 
@@ -64,7 +53,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
     public SceneExplorerServiceImpl() {
 
-        registerInternalEditors();
+        //registerInternalEditors();
 
         this.propertyEditorService = ServiceManager.getService(PropertyEditorService.class);
 
@@ -154,6 +143,8 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                     return;
                 }
 
+                /*
+
                 boolean foundEditor = false;
 
                 // iterate over all registered editors.
@@ -184,6 +175,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                         modelEditor.clearAllHighlights();
                     }
                 }
+                */
             }
             else {
                 propertyEditorService.clearWindowContent();
@@ -235,6 +227,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
         windowContent = new JBScrollPane(jPanel);
     }
 
+    /*
     public void registerEditor(Class<?> clazz, Class<? extends JmeObject> editorClass) {
         registeredEditors.put(clazz, editorClass);
     }
@@ -256,6 +249,8 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
         registerEditor(SpotLight.class, SpotLightEditor.class);
 
     }
+
+     */
 
     @Override
     public void refreshScene() {
