@@ -6,7 +6,7 @@ import com.jme3.environment.EnvironmentCamera;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jmonkeystore.ide.jme.JmeEngineService;
-import com.jmonkeystore.ide.jme.camera.SceneCameraState;
+import com.jmonkeystore.ide.jme.camera.EditorCameraState;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 
 import java.awt.*;
@@ -21,17 +21,15 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     private static final Logger LOG = Logger.getInstance(JmeEngineServiceImpl.class);
 
     private SwingCanvasContext canvasContext;
-    private SceneCameraState sceneCameraState;
+    private EditorCameraState editorCameraState;
 
     private ExternalAssetLoader externalAssetLoader;
 
     public JmeEngineServiceImpl() {
-        super(new SceneCameraState(), new NormalViewerState(), new EnvironmentCamera());
+        super(new EditorCameraState(), new NormalViewerState(), new EnvironmentCamera());
 
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(SwingCanvasContext.class);
-        //settings.setWidth(640);
-        //settings.setHeight(480);
         settings.setFrameRate(60);
         settings.setResizable(true);
         settings.setAudioRenderer(null);
@@ -123,15 +121,11 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
                     if (canvasContext.containsPanel(jmePanel)) {
                         if (mouseEvent.getID() == MouseEvent.MOUSE_ENTERED) {
-                            //if (canvasContext.getInputSource() != jmePanel) {
-                                canvasContext.setInputSource(jmePanel);
-                                // intellijFlyCamAppState.setCamera(jmePanel.getCamera());
-                                sceneCameraState.setCamera(jmePanel.getCamera());
-                            //}
+                            canvasContext.setInputSource(jmePanel);
+                            editorCameraState.setActiveCamera(jmePanel.getCamera());
                         }
                         else if (mouseEvent.getID() == MouseEvent.MOUSE_EXITED) {
-                            // intellijFlyCamAppState.removeActiveCamera();
-                            sceneCameraState.removeActiveCamera();
+                            editorCameraState.removeActiveCamera();
                         }
                     }
 
@@ -143,9 +137,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
     @Override
     public void simpleInitApp() {
 
-
-
-        sceneCameraState = getStateManager().getState(SceneCameraState.class);
+        // sceneCameraState = getStateManager().getState(SceneCameraState.class);
+        editorCameraState = getStateManager().getState(EditorCameraState.class);
         inputManager.setCursorVisible(true);
 
         getStateManager().getState(NormalViewerState.class).setEnabled(false);
