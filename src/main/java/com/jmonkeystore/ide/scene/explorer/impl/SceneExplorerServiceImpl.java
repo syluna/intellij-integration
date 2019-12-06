@@ -8,14 +8,21 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
+import com.jme3.anim.AnimComposer;
+import com.jme3.animation.AnimControl;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
+import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
 import com.jmonkeystore.ide.editor.controls.ReflectionEditor;
+import com.jmonkeystore.ide.editor.controls.anim.AnimComposerControl;
+import com.jmonkeystore.ide.editor.controls.anim.AnimationControl;
 import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
+import com.jmonkeystore.ide.editor.objects.JmeObject;
 import com.jmonkeystore.ide.editor.ui.JmeModelEditorUI;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.scene.NormalViewerState;
@@ -31,11 +38,20 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SceneExplorerServiceImpl implements SceneExplorerService {
 
-    // private final Map<Class<?>, Class<? extends JmeObject>> registeredEditors = new HashMap<>();
+    // editors for Control (AnimControl, AnimComposer, etc)
+    private Map<Class<? extends Control>, Class<? extends JmeEditorControl>> controlEditors = new HashMap<>();
+    // editors for Geometry (ParticleEmitter, etc)
+    private Map<Class<? extends Geometry>, Class<? extends JmeEditorControl>> geometryEditors = new HashMap<>();
+    // editors for Node (lemur labels, etc).
+    private Map<Class<? extends Node>, Class<? extends JmeEditorControl>> nodeEditors = new HashMap<>();
 
     private JBScrollPane windowContent;
 
@@ -87,6 +103,9 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
         tree.addTreeSelectionListener(e -> {
 
+            // always clear the window content.
+            propertyEditorService.clearWindowContent();
+
             DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) ((Tree) e.getSource()).getLastSelectedPathComponent();
 
             Project project = ProjectUtils.getActiveProject();
@@ -102,12 +121,40 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
             }
 
             if (treeNode != null) {
+
                 Object item = treeNode.getUserObject();
 
-                ReflectionEditor reflectionEditor = new ReflectionEditor(item);
-                propertyEditorService.setWindowContent(reflectionEditor);
+                JmeObject jmeObject = null;
 
+                // search for all custom editors first.
 
+                if (item instanceof Control) {
+
+                    Control control = (Control) item;
+
+                    Class<? extends JmeEditorControl> editorClass = controlEditors.get(control.getClass());
+
+                    if (editorClass != null) {
+                        try {
+                            Constructor<? extends JmeEditorControl> constructor = editorClass.getConstructor(control.getClass());
+                            jmeObject = constructor.newInstance(control);
+                        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
+                }
+
+                // if a control has been found, use it, else reflect the properties.
+                // actually we don't always want this. Geometry and Node editors (particles, etc) will want the default editor, too.
+
+                if (jmeObject != null) {
+                    propertyEditorService.setWindowContent(jmeObject);
+                }
+                else {
+                    ReflectionEditor reflectionEditor = new ReflectionEditor(item);
+                    propertyEditorService.setWindowContent(reflectionEditor);
+                }
 
                 // node/geometry/mesh highlighter
                 if (modelEditor != null) {
@@ -225,6 +272,25 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
         jPanel.add(tree);
 
         windowContent = new JBScrollPane(jPanel);
+
+        registerInternalControlEditors();
+    }
+
+    public void registerControlEditor(Class<? extends Control> controlClass, Class<? extends JmeEditorControl> editorClass) {
+        controlEditors.put(controlClass, editorClass);
+    }
+
+    private void registerInternalControlEditors() {
+        controlEditors.put(AnimControl.class, AnimationControl.class);
+        controlEditors.put(AnimComposer.class, AnimComposerControl.class);
+    }
+
+    public void registerGeometryEditor(Class<? extends Geometry> geomClass, Class<? extends JmeEditorControl> editorClass) {
+        geometryEditors.put(geomClass, editorClass);
+    }
+
+    public void registerNodeEditor(Class<? extends Node> nodeClass, Class<? extends JmeEditorControl> editorClass) {
+        nodeEditors.put(nodeClass, editorClass);
     }
 
     /*
