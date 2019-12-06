@@ -4,8 +4,9 @@
     <vendor email="support@jmonkeystore.com" url="https://jmonkeystore.com">JmonkeyStore</vendor>
     <description>Provides IDE integration for JmonkeyEngine</description>
 
-    <idea-version since-build="192"/>
+    <idea-version since-build="193"/>
 
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.java</depends>
 
