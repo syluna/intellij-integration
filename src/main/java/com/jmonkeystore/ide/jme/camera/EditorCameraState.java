@@ -22,9 +22,9 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
     private final float[] camAngles = new float[3];
     private final Quaternion camRotation = new Quaternion();
 
-    private float panSpeed = 15f;
+    private float panSpeed = 5f;
     private float rotateSpeed = 5f;
-    private float zoomSpeed = 100.0f;
+    private float zoomSpeed = 50.0f;
 
     private boolean rmb_pressed = false;
     private boolean mmb_pressed = false;
