@@ -53,6 +53,9 @@ patchPluginXml {
     <h3>1.0.5</h3>
     <ul>
         <li>Use new camera controls to allow editors to assign left-click actions</li>
+        <li>Deprecate old methods of generating JME object editors</li>
+        <li>Begin implementation of registering custom editors for Controls, Nodes and Geometries.</li>
+        <li>Allow adding ParticleEmitter to nodes in Scene Explorer</li>
     </ul>
     
     <h3>1.0.4.x</h3>
