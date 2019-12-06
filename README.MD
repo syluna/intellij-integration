@@ -7,11 +7,17 @@ This project is currently a **work in progress**
 
 This plugin provides the ability to:
 - Create New jMonkeyEngine projects with the required dependencies and a Main class.
-- Create scenes ( Tools -> Import Model )
+    - File -> New Project -> Jmonkey
+- Create scenes
+    - Right-Click in Project window
 - Modify scene properties.
-- Add supported objects (Nodes, ParticleEmitters, etc) to a scene.
+    - Click on an item in Scene Explorer and edit in Property Editor
+- Add supported objects (Nodes, ParticleEmitters, Lights, SkyBoxes, etc) to a scene.
+    - Right-Click on an item in Scene Explorer
 - Import, view and modify models.
+    - Tools -> Import Model
 - Add imported models to a scene.
+    - Drag .j3o onto a Node in Scene Explorer
 
 Next target(s)
 - Provide support for custom editors.
