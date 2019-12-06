@@ -62,10 +62,7 @@ public class SceneTreeRenderer implements TreeCellRenderer {
 
             label.setText(item.getClass().getSimpleName());
 
-            if (item instanceof AnimControl) {
-                label.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/animationControl.gif"));
-            }
-            else if (item instanceof AnimComposer) {
+            if (item instanceof AnimControl || item instanceof AnimComposer) {
                 label.setIcon(IconLoader.getIcon("/Icons/SceneExplorer/animationControl.gif"));
             }
             else if (item instanceof SkeletonControl) {
