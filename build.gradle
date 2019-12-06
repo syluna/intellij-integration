@@ -37,16 +37,30 @@ dependencies {
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"
 
     implementation "org.reflections:reflections:0.9.11"
+    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
+
 }
 
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version 'IC-2019.3'
-    plugins 'gradle', 'java'
+    plugins 'java', 'gradle'
 }
 patchPluginXml {
     changeNotes """
+
+    <h3>1.0.5</h3>
+    <ul>
+        <li>Use new camera controls to allow editors to assign left-click actions</li>
+    </ul>
+    
+    <h3>1.0.4.x</h3>
+    <ul>
+        <li>Update for compatibility for IJ 2019.3</li>
+        <li>Removed manually-generated properties.</li>
+        <li>Added reflected get/set properties to reveal all available registered properties.</li>
+    </ul>
 
     <h3>1.0.3</h3>
     <ul>
