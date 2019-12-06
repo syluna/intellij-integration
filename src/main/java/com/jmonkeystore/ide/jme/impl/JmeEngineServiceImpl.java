@@ -30,7 +30,8 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
 
         AppSettings settings = new AppSettings(true);
         settings.setCustomRenderer(SwingCanvasContext.class);
-        settings.setFrameRate(60);
+        // settings.setFrameRate(60);
+        settings.setVSync(true);
         settings.setResizable(true);
         settings.setAudioRenderer(null);
         setSettings(settings);
