@@ -1,5 +1,7 @@
 package com.jmonkeystore.ide.reflection;
 
+import org.reflections.ReflectionUtils;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -32,11 +34,11 @@ public class UniqueProperties {
 
     private void create() {
 
-        Set<Method> getters = org.reflections.ReflectionUtils.getAllMethods(object.getClass(),
-                org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC), org.reflections.ReflectionUtils.withPrefix("get"));
+        Set<Method> getters = ReflectionUtils.getAllMethods(object.getClass(),
+                org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC), ReflectionUtils.withPrefix("get"));
 
-        Set<Method> setters = org.reflections.ReflectionUtils.getAllMethods(object.getClass(),
-                org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC), org.reflections.ReflectionUtils.withPrefix("set"));
+        Set<Method> setters = ReflectionUtils.getAllMethods(object.getClass(),
+                org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC), ReflectionUtils.withPrefix("set"));
 
         // remove all getters that have no matching setters
         getters.removeIf(getter -> {
