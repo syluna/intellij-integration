@@ -4,12 +4,12 @@
     <vendor email="support@jmonkeystore.com" url="https://jmonkeystore.com">JmonkeyStore</vendor>
     <description>Provides IDE integration for JmonkeyEngine</description>
 
-    <idea-version since-build="193"/>
+    <idea-version since-build="193.5233"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.java</depends>
-    <depends>org.jetbrains.plugins.gradle</depends>
+    <depends>com.intellij.gradle</depends>
 
     <extensions defaultExtensionNs="com.intellij">
 
@@ -27,6 +27,9 @@
 
         <!-- Property Editor: edit scene graph selected object properties -->
         <applicationService serviceInterface="com.jmonkeystore.ide.scene.editor.PropertyEditorService" serviceImplementation="com.jmonkeystore.ide.scene.editor.impl.PropertyEditorServiceImpl"/>
+
+        <!-- A store of whatever we inject into intellij and the engine to use -->
+        <!-- <applicationService serviceImplementation="com.jmonkeystore.ide.reflection.ClassPathListener" /> -->
 
         <!-- .j3o file type and editor -->
         <fileType name="Jme Model" implementationClass="com.jmonkeystore.ide.filetype.JmeModelFileType" fieldName="INSTANCE" language="Jme.Model" extensions="j3o"/>
@@ -58,7 +61,6 @@
                 description="Creates a new JME scene">
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
-
 
     </actions>
 
