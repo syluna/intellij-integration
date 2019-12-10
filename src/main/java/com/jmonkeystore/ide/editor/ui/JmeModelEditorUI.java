@@ -107,7 +107,7 @@ public class JmeModelEditorUI implements Disposable {
             jmePanel.getRootNode().addLight(ambientLight);
 
             jmePanel.getRootNode().attachChild(grid);
-            jmePanel.getRootNode().attachChild(sky);
+            // jmePanel.getRootNode().attachChild(sky);
 
             if (scene != null) {
                 jmePanel.getRootNode().attachChild(scene);
@@ -230,7 +230,7 @@ public class JmeModelEditorUI implements Disposable {
         // sky
         JMenu skyMenu = new JMenu("Sky");
 
-        JCheckBoxMenuItem showSkyBoxMenuItem = new JCheckBoxMenuItem("Show SkyBox", true);
+        JCheckBoxMenuItem showSkyBoxMenuItem = new JCheckBoxMenuItem("Show SkyBox", false);
         showSkyBoxMenuItem.addActionListener(e -> {
             JCheckBoxMenuItem checkbox = (JCheckBoxMenuItem) e.getSource();
             if (checkbox.isSelected()) {
