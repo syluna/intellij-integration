@@ -1,12 +1,16 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.intellij' version '0.4.14'
+    id 'org.jetbrains.intellij' version '0.4.15'
 }
 
-group 'com.jmonkeystore'
-version '1.0.4.1'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.intellij'
 
-sourceCompatibility = 11
+group 'com.jmonkeystore'
+version '1.0.5'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
@@ -14,6 +18,8 @@ repositories {
 
     // test-data
     maven { url 'https://dl.bintray.com/stephengold/org.jmonkeyengine' } // for jme3-testdata
+
+    mavenLocal()
 }
 
 configurations {
@@ -26,6 +32,8 @@ project.ext {
 
 dependencies {
 
+    implementation "com.jmonkeystore:intellij-integration-api:1.0"
+
     compile "org.jmonkeyengine:jme3-core:$jmeVer"
     compile "org.jmonkeyengine:jme3-desktop:$jmeVer"
     compile "org.jmonkeyengine:jme3-lwjgl:$jmeVer"
@@ -36,22 +44,25 @@ dependencies {
 
     compile "org.jmonkeyengine:jme3-testdata:3.3.0-alpha2"
 
-    implementation "org.reflections:reflections:0.9.11"
-    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
-
+    compile "org.reflections:reflections:0.9.11"
+    compile "com.google.guava:guava:28.1-jre"
+    compile "org.codehaus.groovy:groovy-all:2.5.4"
 }
 
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'IC-2019.3'
-    plugins 'java', 'gradle'
+    version '2019.3'
+    plugins = [ 'java', 'gradle', 'coverage' ]
 }
 patchPluginXml {
     changeNotes """
 
     <h3>1.0.5</h3>
     <ul>
+        <li>Use PBR-based scenes instead of regular Lighting.j3md</li>
+        <li>Add new game templates such as basic, FPS, etc</a>
+        <li>Add support for bounding sphere highlighting in editor</li>
         <li>Use new camera controls to allow editors to assign left-click actions</li>
         <li>Deprecate old methods of generating JME object editors</li>
         <li>Begin implementation of registering custom editors for Controls, Nodes and Geometries.</li>
