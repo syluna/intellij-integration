@@ -19,6 +19,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
+import com.jme3.scene.debug.WireSphere;
 import com.jmonkeystore.ide.editor.impl.JmeModelEditorImpl;
 import com.jmonkeystore.ide.jme.JmeEngineService;
 import com.jmonkeystore.ide.jme.impl.JmePanel;
@@ -156,14 +157,33 @@ public class JmeModelEditorUI implements Disposable {
         if (spatial.getWorldBound() != null) {
             ServiceManager.getService(JmeEngineService.class).enqueue(() -> {
 
-                this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
+                if (spatial.getWorldBound() instanceof BoundingBox) {
 
-                this.bbGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
-                this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
-                this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
-                this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+                    this.bbGeom = WireBox.makeGeometry((BoundingBox) spatial.getWorldBound());
 
-                jmePanel.getRootNode().attachChild(bbGeom);
+                    this.bbGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+                    this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+                    this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+                    this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+
+                    jmePanel.getRootNode().attachChild(bbGeom);
+
+                }
+                else if (spatial.getWorldBound() instanceof BoundingSphere) {
+
+                    BoundingSphere boundingSphere = (BoundingSphere) spatial.getWorldBound();
+                    WireSphere wireSphere = new WireSphere(boundingSphere.getRadius());
+
+                    this.bbGeom = new Geometry("Bounding Sphere Geometry", wireSphere);
+                    this.bbGeom.setMaterial(new Material(ServiceManager.getService(JmeEngineService.class).getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md"));
+                    this.bbGeom.getMaterial().getAdditionalRenderState().setLineWidth(2);
+                    this.bbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+                    this.bbGeom.getMaterial().setColor("Color", ColorRGBA.Blue);
+
+                    jmePanel.getRootNode().attachChild(bbGeom);
+
+                }
+
             });
         }
     }
