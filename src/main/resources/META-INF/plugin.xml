@@ -4,7 +4,7 @@
     <vendor email="support@jmonkeystore.com" url="https://jmonkeystore.com">JmonkeyStore</vendor>
     <description>Provides IDE integration for JmonkeyEngine</description>
 
-    <idea-version since-build="193.5233"/>
+    <idea-version since-build="193"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -14,7 +14,8 @@
     <extensions defaultExtensionNs="com.intellij">
 
         <!-- New Jmonkey Project Template -->
-        <moduleType id="Jmonkey" implementationClass="com.jmonkeystore.ide.newproject.JmeModuleType"/>
+        <moduleType id="jMonkeyEngine" implementationClass="com.jmonkeystore.ide.newproject.JmeModuleType"/>
+        <moduleBuilder builderClass="com.jmonkeystore.ide.newproject.JmeModuleBuilder" />
 
         <!-- Pre-load the jmonkey engine -->
         <postStartupActivity implementation="com.jmonkeystore.ide.startup.JmeStartupActivity" />
