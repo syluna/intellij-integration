@@ -2,31 +2,21 @@ package com.jmonkeystore.ide.editor.controls;
 
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jmonkeystore.ide.api.JmeObject;
 import com.jmonkeystore.ide.editor.component.Component;
-import com.jmonkeystore.ide.editor.objects.JmeObject;
 import com.jmonkeystore.ide.reflection.ComponentBuilder;
 import com.jmonkeystore.ide.reflection.UniqueProperties;
 import org.jdesktop.swingx.VerticalLayout;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 
 public class ReflectionEditor implements JmeObject {
 
     private JPanel contentPanel;
 
-    private Object object;
-
     public ReflectionEditor(Object object) {
-        this.object = object;
 
         this.contentPanel = new JPanel(new VerticalLayout());
-
-        Border border = BorderFactory.createTitledBorder(object.getClass().getSimpleName());
-
-
-        this.contentPanel.setBorder(border);
-
 
         UniqueProperties uniqueProperties = new UniqueProperties(object);
         ComponentBuilder componentBuilder = new ComponentBuilder(uniqueProperties);
