@@ -15,25 +15,29 @@ public class JmeModuleWizardStep extends ModuleWizardStep implements Disposable 
     private JTextField artifactIdTextField;
     private JTextField versionTextField;
     private JComboBox<String> lwjglComboBox;
-    private JCheckBox effectsDependencyComboBox;
-    private JCheckBox bulletPhysicsDependencyCheckBox;
     private JComboBox<String> bulletPhysicsTypeComboBox;
-    private JLabel bulletTypeLabel;
-    private JCheckBox oggDependencyCheckBox;
-    private JCheckBox pluginsDependencyCheckBox;
+
+    private JComboBox<String> templateTypeComboBox;
 
     private WizardContext context;
     private JmeModuleBuilder builder;
 
+    private final String[] templates = {
+            "Basic",
+            "First Person Shooter",
+    };
+
     private final String[] versions = {
+
+            "3.2.2-stable",
+            "3.2.3-stable",
             "3.2.4-stable",
+
             "3.3.0-alpha5",
             "3.3.0-alpha4",
             "3.3.0-alpha3",
             "3.3.0-alpha2",
             "3.3.0-alpha1",
-            "3.2.3-stable",
-            "3.2.2-stable"
     };
 
     private final String[] lwjglVersions = {
@@ -50,23 +54,21 @@ public class JmeModuleWizardStep extends ModuleWizardStep implements Disposable 
         this.context = context;
         this.builder = builder;
 
+        templateTypeComboBox.setModel(new DefaultComboBoxModel(templates));
         engineVersionCombo.setModel(new DefaultComboBoxModel<>(versions));
         lwjglComboBox.setModel(new DefaultComboBoxModel<>(lwjglVersions));
         bulletPhysicsTypeComboBox.setModel(new DefaultComboBoxModel<>(bulletTypes));
 
         // hide bullet options if it's not selected.
-        setBulletTypeVisible(bulletPhysicsDependencyCheckBox.isSelected());
-        bulletPhysicsDependencyCheckBox.addActionListener(e -> {
-            JCheckBox cb = (JCheckBox) e.getSource();
-            setBulletTypeVisible(cb.isSelected());
-        });
+        //setBulletTypeVisible(bulletPhysicsDependencyCheckBox.isSelected());
+        //bulletPhysicsDependencyCheckBox.addActionListener(e -> {
+            //JCheckBox cb = (JCheckBox) e.getSource();
+            //setBulletTypeVisible(cb.isSelected());
+        //});
 
     }
 
-    private void setBulletTypeVisible(boolean visible) {
-        bulletTypeLabel.setVisible(visible);
-        bulletPhysicsTypeComboBox.setVisible(visible);
-    }
+
 
     @Override
     public JComponent getComponent() {
@@ -82,11 +84,14 @@ public class JmeModuleWizardStep extends ModuleWizardStep implements Disposable 
 
         builder.getProjectSettings().setEngineVersion(versions[engineVersionCombo.getSelectedIndex()]);
         builder.getProjectSettings().setLwjglVersion(lwjglVersions[lwjglComboBox.getSelectedIndex()]);
-        builder.getProjectSettings().setUseEffectsDependency(effectsDependencyComboBox.isSelected());
-        builder.getProjectSettings().setUseBulletPhysicsDependency(bulletPhysicsDependencyCheckBox.isSelected());
+
+        // builder.getProjectSettings().setUseEffectsDependency(effectsDependencyComboBox.isSelected());
+        // builder.getProjectSettings().setUseEffectsDependency(true);
+        // builder.getProjectSettings().setUseBulletPhysicsDependency(true);
         builder.getProjectSettings().setBulletPhysicsDependencyType(bulletTypes[bulletPhysicsTypeComboBox.getSelectedIndex()]);
-        builder.getProjectSettings().setUseOggDependency(oggDependencyCheckBox.isSelected());
-        builder.getProjectSettings().setUsePluginsDependency(pluginsDependencyCheckBox.isSelected());
+        // builder.getProjectSettings().setUseOggDependency(true);
+        // builder.getProjectSettings().setUsePluginsDependency(true);
+        builder.getProjectSettings().setTemplateType(templates[templateTypeComboBox.getSelectedIndex()]);
     }
 
     @Override

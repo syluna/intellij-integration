@@ -48,6 +48,7 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
     private final String TEMPLATE_ATTRIBUTE_MODULE_NAME = "MODULE_NAME";
     private final String TEMPLATE_ATTRIBUTE_JAVA_VERSION = "JAVA_VERSION";
 
+
     // java-related
     private final String PROJECT_GROUP_ID = "GROUP_ID";
     private final String PROJECT_ARTIFACT_ID = "ARTIFACT_ID";
@@ -267,13 +268,16 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
 
         attributes.put(JME_ENGINE_VERSION, projectSettings.getEngineVersion());
         attributes.put(JME_LWJGL_VERSION, projectSettings.getLwjglVersion());
-        attributes.put(JME_DEP_EFFECTS, "" + projectSettings.isUseEffectsDependency());
-        attributes.put(JME_DEP_BULLET, "" + projectSettings.isUseBulletPhysicsDependency());
+        // attributes.put(JME_DEP_EFFECTS, "" + projectSettings.isUseEffectsDependency());
+        // attributes.put(JME_DEP_BULLET, "" + projectSettings.isUseBulletPhysicsDependency());
         attributes.put(JME_BULLET_TYPE, projectSettings.getBulletPhysicsDependencyType());
-        attributes.put(JME_DEP_OGG, "" + projectSettings.isUseOggDependency());
-        attributes.put(JME_DEP_PLUGINS, "" + projectSettings.isUsePluginsDependency());
+        // attributes.put(JME_DEP_OGG, "" + projectSettings.isUseOggDependency());
+        // attributes.put(JME_DEP_PLUGINS, "" + projectSettings.isUsePluginsDependency());
 
         attributes.put(TEMPLATE_ATTRIBUTE_JAVA_VERSION, javaVersion);
+
+        String mainClassName = projectSettings.getGroupId() + "." + projectSettings.getArtifactId() + ".Main";
+        attributes.put("MAINCLASSNAME", mainClassName);
 
         saveFile(file, TEMPLATE_BUILD_GRADLE, attributes);
 

@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class JmeModuleType extends ModuleType<JmeModuleBuilder> {
 
-    public static final String ID = "Jmonkey";
+    public static final String ID = "jMonkeyEngine";
 
     protected JmeModuleType() {
         super(ID);
