@@ -1,6 +1,6 @@
 package com.jmonkeystore.ide.scene.editor;
 
-import com.jmonkeystore.ide.editor.objects.JmeObject;
+import com.jmonkeystore.ide.api.JmeObject;
 
 import javax.swing.*;
 
