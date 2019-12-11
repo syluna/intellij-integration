@@ -41,7 +41,10 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
 
     private final String TEMPLATE_GRADLE_SETTINGS = "Gradle Settings.gradle";
     private final String TEMPLATE_BUILD_GRADLE = "JmeGradleBuildScript.gradle";
-    private final String TEMPLATE_MAIN_CLASS = "JmeMainClass.java";
+
+    // template names for the various templates(basic, fps, etc).
+    private final String TEMPLATE_BASIC_MAIN_CLASS = "Jme_Basic_MainClass.java";
+    private final String TEMPLATE_FPS_MAIN_CLASS = "Jme_Fps_MainClass.java";
 
     private final String TEMPLATE_ATTRIBUTE_PROJECT_NAME = "PROJECT_NAME";
     private final String TEMPLATE_ATTRIBUTE_MODULE_PATH = "MODULE_PATH";
@@ -158,7 +161,26 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
         attributes.put("PACKAGE", packageName);
 
         VirtualFile mainClassFile = getOrCreateExternalProjectConfigFile(sourcesRootPath.getPath(), "Main.java");
-        saveFile(mainClassFile, TEMPLATE_MAIN_CLASS, attributes);
+
+        String templateType = projectSettings.getTemplateType();
+
+        switch (templateType) {
+
+            case TemplateTypes.BASIC: {
+                saveFile(mainClassFile, TEMPLATE_BASIC_MAIN_CLASS, attributes);
+                break;
+            }
+
+            case TemplateTypes.FPS: {
+                saveFile(mainClassFile, TEMPLATE_FPS_MAIN_CLASS, attributes);
+
+                // add the level and gun to the resources.
+
+                break;
+            }
+
+            default: throw new RuntimeException("Unknown game template specified: " + templateType);
+        }
 
     }
 
