@@ -2,7 +2,7 @@ package com.jmonkeystore.ide.scene.editor.impl;
 
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
-import com.jmonkeystore.ide.editor.objects.JmeObject;
+import com.jmonkeystore.ide.api.JmeObject;
 import com.jmonkeystore.ide.scene.editor.PropertyEditorService;
 import org.jdesktop.swingx.VerticalLayout;
 
