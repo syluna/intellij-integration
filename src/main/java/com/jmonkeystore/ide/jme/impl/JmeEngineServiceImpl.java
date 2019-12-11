@@ -40,17 +40,6 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
         assetManager = JmeSystem.newAssetManager(getClass().getResource(
                 "/AssetManager/IntellijAssetManager.cfg"));
 
-        /*
-        Project project = ProjectUtils.getActiveProject();
-
-        // if a project is already open when the IDE starts it will not trigger the "Project Opened" event, so we call it here
-        // this doesn't work all the time. We need a better way.
-        if (project != null) {
-            MessageBus messageBus = project.getMessageBus();
-            messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new ModelFileAdapter());
-        }
-
-         */
 
         createCanvas();
         startCanvas(true);
