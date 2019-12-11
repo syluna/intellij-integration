@@ -60,8 +60,9 @@ patchPluginXml {
 
     <h3>1.0.5</h3>
     <ul>
+        <li>Fix compatibility-related issues updating to IJ-2019.3</li>
         <li>Use PBR-based scenes instead of regular Lighting.j3md</li>
-        <li>Add new game templates such as basic, FPS, etc</a>
+        <li>Add new game templates such as basic, FPS, etc</li>
         <li>Add support for bounding sphere highlighting in editor</li>
         <li>Use new camera controls to allow editors to assign left-click actions</li>
         <li>Deprecate old methods of generating JME object editors</li>
