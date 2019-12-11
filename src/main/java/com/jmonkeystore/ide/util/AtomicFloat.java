@@ -37,7 +37,7 @@ public class AtomicFloat extends Number {
     }
 
     public final boolean weakCompareAndSet(float expect, float update) {
-        return bits.weakCompareAndSetPlain(floatToIntBits(expect),
+        return bits.compareAndSet(floatToIntBits(expect),
                 floatToIntBits(update));
     }
 
