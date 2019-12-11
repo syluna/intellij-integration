@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jmonkeystore.ide.api.JmeObject;
 import com.jmonkeystore.ide.editor.controls.quaternion.QuaternionControl;
 import com.jmonkeystore.ide.editor.controls.vector.Vector3fControl;
 import com.jmonkeystore.ide.jme.JmeEngineService;

@@ -1,6 +1,7 @@
 package com.jmonkeystore.ide.editor.objects;
 
 import com.jme3.animation.AnimControl;
+import com.jmonkeystore.ide.api.JmeObject;
 import com.jmonkeystore.ide.editor.controls.anim.AnimationControl;
 import org.jdesktop.swingx.VerticalLayout;
 
