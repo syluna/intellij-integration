@@ -19,7 +19,6 @@ repositories {
     // test-data
     maven { url 'https://dl.bintray.com/stephengold/org.jmonkeyengine' } // for jme3-testdata
 
-    mavenLocal()
 }
 
 configurations {
