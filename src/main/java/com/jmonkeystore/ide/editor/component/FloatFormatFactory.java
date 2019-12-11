@@ -14,6 +14,7 @@ public class FloatFormatFactory extends JFormattedTextField.AbstractFormatterFac
         NumberFormat format = DecimalFormat.getInstance();
         format.setMinimumFractionDigits(1);
         format.setMaximumFractionDigits(7);
+        format.setGroupingUsed(false);
         format.setRoundingMode(RoundingMode.HALF_UP);
 
         InternationalFormatter formatter = new InternationalFormatter(format);
