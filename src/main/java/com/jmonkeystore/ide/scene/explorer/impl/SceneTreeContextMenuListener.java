@@ -32,18 +32,27 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SceneTreeContextMenuListener implements MouseListener {
 
     private final Tree tree;
     private final DefaultMutableTreeNode treeRoot;
 
+    // registered stuff we want to provide context menus for.
+    // nodes
+    private Set<Class<? extends Node>> registeredNodes = new HashSet<>();
+
     // private MenuElement[] spatialMenuItems;
 
-    private JPopupMenu lightPopupMenu;
-    private JPopupMenu nodePopupMenu;
-    private JPopupMenu geomPopupMenu;
+    // private JPopupMenu lightPopupMenu;
+    // private JPopupMenu nodePopupMenu;
+    // private JPopupMenu geomPopupMenu;
 
     private DefaultMutableTreeNode clickedNode;
 
@@ -53,9 +62,21 @@ public class SceneTreeContextMenuListener implements MouseListener {
 
         // this.spatialMenuItems = createSpatialMenuItems();
 
-        this.lightPopupMenu = createLightPopupMenu();
-        this.nodePopupMenu = createNodePopupMenu();
-        this.geomPopupMenu = createGeomPopupMenu();
+        // this.lightPopupMenu = createLightPopupMenu();
+        // this.nodePopupMenu = createNodePopupMenu();
+        // this.geomPopupMenu = createGeomPopupMenu();
+    }
+
+    public void registerNode(Class<? extends Node> nodeClass) {
+        registeredNodes.add(nodeClass);
+    }
+
+    public void registerNodes(List<Class<? extends Node>> nodes) {
+        registeredNodes.addAll(nodes);
+    }
+
+    public void clearRegisteredNodes() {
+        registeredNodes.clear();
     }
 
     // creates menu items that all spatials have.
@@ -303,6 +324,28 @@ public class SceneTreeContextMenuListener implements MouseListener {
         });
         menu.add(particleEmitterMenuItem);
 
+        // add registered nodes
+        for (Class<? extends Node> nodeClass : registeredNodes) {
+
+            String name = nodeClass.getSimpleName();
+            JMenuItem nodeItem = new JMenuItem(name);
+
+            nodeItem.addActionListener(e -> {
+                try {
+                    Constructor<? extends Node> constructor = nodeClass.getConstructor();
+                    Node newNode = constructor.newInstance();
+
+                    Node node = (Node) clickedNode.getUserObject();
+                    node.attachChild(newNode);
+                    ServiceManager.getService(SceneExplorerService.class).refreshScene();
+
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            menu.add(nodeItem);
+        }
 
         return menu;
     }
@@ -317,13 +360,13 @@ public class SceneTreeContextMenuListener implements MouseListener {
             JPopupMenu popupMenu = null;
 
             if (clickedNode.getUserObject() instanceof Node) {
-                popupMenu = nodePopupMenu;
+                popupMenu = createNodePopupMenu();
             }
             else if (clickedNode.getUserObject() instanceof Light) {
-                popupMenu = lightPopupMenu;
+                popupMenu = createLightPopupMenu();
             }
             else if (clickedNode.getUserObject() instanceof Geometry) {
-                popupMenu = geomPopupMenu;
+                popupMenu = createGeomPopupMenu();
             }
             if (popupMenu != null) {
                 popupMenu.show(e.getComponent(), e.getX(), e.getY());
