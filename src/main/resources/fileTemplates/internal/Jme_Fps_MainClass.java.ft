@@ -37,11 +37,11 @@ import java.util.List;
  * A basic game template.
  * @author jayfella
  */
-public class Main_FPS extends SimpleApplication implements ActionListener {
+public class Main extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
 
-        Main_FPS app = new Main_FPS();
+        Main app = new Main();
 
         AppSettings settings = new AppSettings(true);
         settings.setTitle("My Awesome Game");
