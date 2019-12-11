@@ -23,8 +23,8 @@ public class JmeModuleWizardStep extends ModuleWizardStep implements Disposable 
     private JmeModuleBuilder builder;
 
     private final String[] templates = {
-            "Basic",
-            "First Person Shooter",
+            TemplateTypes.BASIC,
+            TemplateTypes.FPS,
     };
 
     private final String[] versions = {
