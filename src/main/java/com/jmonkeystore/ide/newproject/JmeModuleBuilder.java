@@ -24,6 +24,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.SystemProperties;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
@@ -34,6 +35,8 @@ import org.jetbrains.plugins.gradle.util.GradleConstants;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,9 +128,10 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
 
         // create the sources and resources directories
         VirtualFile soureRootPath = setupSourceDirectory(modifiableRootModel, modelContentRootDir);
-        setupResourcesDirectories(modifiableRootModel, modelContentRootDir);
+        VirtualFile resourceRootPath = setupResourcesDirectories(modifiableRootModel, modelContentRootDir);
 
         createMainClass(soureRootPath);
+        copyResources(resourceRootPath);
         // setupRunConfigurations(modelContentRootDir);
         // setupGitignore(modelContentRootDir);
 
@@ -184,6 +188,76 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
 
     }
 
+    private void copyResources(VirtualFile resourcesRootPath) {
+
+        String templateType = projectSettings.getTemplateType();
+
+        // List<ResourceRoute> resourceRoutes = new ArrayList<>();
+        ResourceRoute[] resourceRoutes = null;
+
+        switch (templateType) {
+
+            case TemplateTypes.BASIC: return; // there are no resources required for this template.
+
+            case TemplateTypes.FPS: {
+
+                resourceRoutes = new ResourceRoute[] {
+                        new ResourceRoute("Models/Levels", "fps.gltf.j3o", "Scenes"),
+                        new ResourceRoute("Models/Weapons", "Pistol.gltf.j3o", "Models"),
+                        new ResourceRoute("Models", "lightprobe.j3o", "Scenes")
+                };
+
+                break;
+            }
+        }
+
+        if (resourceRoutes != null) {
+            for (ResourceRoute route : resourceRoutes) {
+
+                System.out.println("Copying Resource: " + route.toString());
+
+                String resourceName = route.getResourceName();
+                String resourcePath = route.getResourcePath();
+
+                // get the resource from this project
+                // URL resourceURL = ResourceUtil.getResource(getClass().getClassLoader(), resourcePath, resourceName);
+                // VirtualFile resourceVirtualFile = VfsUtil.findFileByURL(resourceURL);
+                URL resourceUrl = getClass().getClassLoader().getResource(resourcePath + "/" + resourceName);
+
+                byte[] data = null;
+
+                try {
+                    // data = resourceVirtualFile.contentsToByteArray(false);
+                    // resourceVirtualFile.
+                    // File file = new File(resourceVirtualFile.getPath());
+                    data = IOUtils.toByteArray(resourceUrl);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (data != null) {
+
+                    String destPath = route.getDestPath();
+                    String destName = route.getDestName();
+
+                    File file = Paths.get(resourcesRootPath.getPath(), destPath, destName).toFile();
+
+                    // File file = new File(resourcesRootPath.getPath(), resourceName);
+                    FileUtilRt.createIfNotExists(file);
+                    VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+
+                    try {
+                        virtualFile.setBinaryContent(data);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+    }
+
     private VirtualFile setupSourceDirectory(ModifiableRootModel modifiableRootModel, VirtualFile modelContentRootDir) {
         // String resourceRootPath = "${modelContentRootDir.path}/src/main/$language";
         String sourceRootPath = modelContentRootDir.getPath() + "/src/main/java";
@@ -218,22 +292,25 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
         return null;
     }
 
-    private void setupResourcesDirectories(ModifiableRootModel modifiableRootModel, VirtualFile modelContentRootDir) {
+    private VirtualFile setupResourcesDirectories(ModifiableRootModel modifiableRootModel, VirtualFile modelContentRootDir) {
 
         String resourcesRootPath = modelContentRootDir.getPath() + "/src/main/resources";
 
         if (getContentEntryPath() == null) {
-            return;
+            return null;
         }
 
         VirtualFile contentRoot = LocalFileSystem.getInstance().findFileByPath(getContentEntryPath());
+        ContentEntry contentEntry = null;
 
         if (contentRoot != null) {
-            ContentEntry contentEntry = MarkRootActionBase.findContentEntry(modifiableRootModel, contentRoot);
+            contentEntry = MarkRootActionBase.findContentEntry(modifiableRootModel, contentRoot);
 
             if (contentEntry != null) {
                 contentEntry.addSourceFolder(VfsUtilCore.pathToUrl(resourcesRootPath), JavaResourceRootType.RESOURCE);
             }
+
+
         }
 
         String[] directories = { "Interface", "MatDefs", "Materials", "Models", "Scenes", "Shaders", "Sounds", "Textures" };
@@ -252,6 +329,9 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
 
         }
 
+
+
+        return contentEntry.getSourceFolders(JavaResourceRootType.RESOURCE).get(0).getFile();
     }
 
     private VirtualFile setupGradleSettingsFile(String rootProjectPath, VirtualFile modelContentRootDir, String projectName, String moduleName, boolean renderNewFile) {
