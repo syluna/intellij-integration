@@ -92,7 +92,8 @@ public class JmeModelEditorUI implements Disposable {
 
         grid = createGrid(engineService.getAssetManager());
 
-        Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
+        // Spatial probeModel = engineService.getAssetManager().loadModel("Scenes/defaultProbe.j3o");
+        Spatial probeModel = engineService.getAssetManager().loadModel("Models/lightprobe.j3o");
         lightProbe = (LightProbe) probeModel.getLocalLightList().get(0);
         lightProbe.setBounds(new BoundingSphere(500, new Vector3f(0, 0, 0)));
 
