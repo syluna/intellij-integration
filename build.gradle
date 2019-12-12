@@ -7,7 +7,7 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 group 'com.jmonkeystore'
-version '1.0.5'
+version '1.0.5.1'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -56,6 +56,11 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
+
+    <h3>1.0.5.1</h3>
+    <ul>
+        <li>Tidied up FPS template code and template management.</li>
+    </ul>
 
     <h3>1.0.5</h3>
     <ul>
