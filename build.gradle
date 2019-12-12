@@ -31,7 +31,7 @@ project.ext {
 
 dependencies {
 
-    implementation "com.jmonkeystore:intellij-integration-api:1.0"
+    compile "com.jmonkeystore:intellij-integration-api:1.0"
 
     compile "org.jmonkeyengine:jme3-core:$jmeVer"
     compile "org.jmonkeyengine:jme3-desktop:$jmeVer"
