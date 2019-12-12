@@ -130,7 +130,7 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
         VirtualFile soureRootPath = setupSourceDirectory(modifiableRootModel, modelContentRootDir);
         VirtualFile resourceRootPath = setupResourcesDirectories(modifiableRootModel, modelContentRootDir);
 
-        createMainClass(soureRootPath);
+        createClasses(soureRootPath);
         copyResources(resourceRootPath);
         // setupRunConfigurations(modelContentRootDir);
         // setupGitignore(modelContentRootDir);
@@ -157,7 +157,7 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
         new OpenFileDescriptor(project, mainClass).navigate(true);
     }
 
-    private void createMainClass(VirtualFile sourcesRootPath) {
+    private void createClasses(VirtualFile sourcesRootPath) {
 
         String packageName = projectSettings.getGroupId() + "." + projectSettings.getArtifactId();
 
@@ -178,7 +178,11 @@ public class JmeModuleBuilder extends AbstractExternalModuleBuilder<GradleProjec
             case TemplateTypes.FPS: {
                 saveFile(mainClassFile, TEMPLATE_FPS_MAIN_CLASS, attributes);
 
-                // add the level and gun to the resources.
+                VirtualFile sceneHelperFile = getOrCreateExternalProjectConfigFile(sourcesRootPath.getPath(), "SceneHelper.java");
+                saveFile(sceneHelperFile, "SceneHelper.java", attributes);
+
+                VirtualFile charControlFile = getOrCreateExternalProjectConfigFile(sourcesRootPath.getPath(), "BasicCharacterMovementState.java");
+                saveFile(charControlFile, "BasicCharacterMovementState.java", attributes);
 
                 break;
             }
