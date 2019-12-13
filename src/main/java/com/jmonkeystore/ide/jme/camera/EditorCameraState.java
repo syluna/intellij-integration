@@ -126,6 +126,10 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
     @Override
     public void update(float tpf) {
 
+        if (cam == null) {
+            return;
+        }
+
         if (lmb_pressed || mmb_pressed || rmb_pressed) {
 
             if (key_forward) {
