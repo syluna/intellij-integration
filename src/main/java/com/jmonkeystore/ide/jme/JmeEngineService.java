@@ -18,6 +18,7 @@ public interface JmeEngineService {
 
     JmePanel getOrCreatePanel(String name);
     void removePanel(JmePanel jmePanel);
+    JmePanel getActivePanel();
 
     ExternalAssetLoader getExternalAssetLoader();
 

@@ -3,12 +3,10 @@ package com.jmonkeystore.ide.jme.camera;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.input.InputManager;
+import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.MouseAxisTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.*;
 import com.jme3.input.event.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -22,12 +20,13 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
     private final float[] camAngles = new float[3];
     private final Quaternion camRotation = new Quaternion();
 
-    private float panSpeed = 5f;
+    private float panSpeed = 10f;
     private float rotateSpeed = 5f;
-    private float zoomSpeed = 50.0f;
+    private float zoomSpeed = 10f;
 
-    private boolean rmb_pressed = false;
-    private boolean mmb_pressed = false;
+    private boolean lmb_pressed,  mmb_pressed, rmb_pressed;
+    private boolean key_forward, key_back, key_left, key_right;
+    private boolean key_up, key_down;
 
     public EditorCameraState() {
 
@@ -77,21 +76,35 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
         inputManager.addMapping("MouseAxisX-", new MouseAxisTrigger(MouseInput.AXIS_X, true));
 
         inputManager.addMapping("MouseAxisY", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-                inputManager.addMapping("MouseAxisY-", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+        inputManager.addMapping("MouseAxisY-", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
 
         inputManager.addMapping("MouseWheel", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
         inputManager.addMapping("MouseWheel-", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
 
-        // inputManager.addMapping("MouseButtonLeft", new MouseButtonTrigger(0));
+        inputManager.addMapping("MouseButtonLeft", new MouseButtonTrigger(0));
         inputManager.addMapping("MouseButtonMiddle", new MouseButtonTrigger(2));
         inputManager.addMapping("MouseButtonRight", new MouseButtonTrigger(1));
 
+        inputManager.addMapping("Key_Forward", new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping("Key_Backward", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("Key_Left", new KeyTrigger(KeyInput.KEY_A));
+        inputManager.addMapping("Key_Right", new KeyTrigger(KeyInput.KEY_D));
+
+        inputManager.addMapping("Key_Down", new KeyTrigger(KeyInput.KEY_Q));
+        inputManager.addMapping("Key_Up", new KeyTrigger(KeyInput.KEY_E));
+
         inputManager.addRawInputListener(this);
+
         inputManager.addListener(this,
                 "MouseAxisX", "MouseAxisY",
                 "MouseAxisX-", "MouseAxisY-",
                 "MouseWheel", "MouseWheel-",
-                /* "MouseButtonLeft", */ "MouseButtonMiddle", "MouseButtonRight");
+                "MouseButtonLeft", "MouseButtonMiddle", "MouseButtonRight",
+
+                "Key_Forward", "Key_Backward", "Key_Left", "Key_Right",
+                "Key_Down", "Key_Up"
+
+                );
 
     }
 
@@ -110,7 +123,39 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
     }
 
+    @Override
+    public void update(float tpf) {
 
+        if (lmb_pressed || mmb_pressed || rmb_pressed) {
+
+            if (key_forward) {
+                zoomCamera(tpf * zoomSpeed);
+            }
+
+            if (key_back) {
+                zoomCamera(-tpf * zoomSpeed);
+            }
+
+            if (key_left) {
+                panCamera(tpf * panSpeed, 0);
+            }
+
+            if (key_right) {
+                panCamera(-tpf * panSpeed, 0);
+            }
+
+            if (key_up) {
+                panCamera(0, tpf * panSpeed);
+            }
+
+            if (key_down) {
+                panCamera(0, -tpf * panSpeed);
+            }
+
+        }
+
+
+    }
 
     // ActionListener
     @Override
@@ -120,20 +165,49 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
             return;
         }
 
-        if (name.equals("MouseButtonRight")) {
-            rmb_pressed = isPressed;
+        if (name.equals("MouseButtonLeft")) {
+            lmb_pressed = isPressed;
         }
 
         if (name.equals("MouseButtonMiddle")) {
             mmb_pressed = isPressed;
         }
 
+        if (name.equals("MouseButtonRight")) {
+            rmb_pressed = isPressed;
+        }
+
+
+        if (name.equals("Key_Forward")) {
+            key_forward = isPressed;
+        }
+
+        if (name.equals("Key_Backward")) {
+            key_back = isPressed;
+        }
+
+        if (name.equals("Key_Left")) {
+            key_left = isPressed;
+        }
+
+        if (name.equals("Key_Right")) {
+            key_right = isPressed;
+        }
+
+        if (name.equals("Key_Up")) {
+            key_up = isPressed;
+        }
+
+        if (name.equals("Key_Down")) {
+            key_down = isPressed;
+        }
+
     }
 
     private void panCamera(float left, float up) {
 
-        Vector3f leftVec = cam.getLeft().mult(left * panSpeed);
-        Vector3f upVec = cam.getUp().mult(up * panSpeed);
+        Vector3f leftVec = cam.getLeft().mult(left);
+        Vector3f upVec = cam.getUp().mult(up);
 
         Vector3f camLoc = cam.getLocation()
                 .add(leftVec)
@@ -144,11 +218,11 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
     private void rotateCamera(float x, float y) {
 
-        x /= FastMath.TWO_PI;
-        y /= FastMath.TWO_PI;
+        // x /= FastMath.TWO_PI;
+        // y /= FastMath.TWO_PI;
 
-        x *= rotateSpeed;
-        y *= rotateSpeed;
+        //x *= rotateSpeed;
+        //y *= rotateSpeed;
 
         camAngles[0] += x;
         camAngles[1] += y;
@@ -178,8 +252,6 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
     private void zoomCamera(float amount) {
 
-        amount *= zoomSpeed;
-
         Vector3f camLoc = cam.getLocation();
         Vector3f movement = cam.getDirection().mult(amount);
         Vector3f newLoc = camLoc.add(movement);
@@ -202,12 +274,13 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
             case "MouseAxisX": {
 
-                if (rmb_pressed) {
-                    rotateCamera(0, -tpf);
+
+                if (lmb_pressed || rmb_pressed) {
+                    rotateCamera(0, -value * rotateSpeed);
                 }
 
                 if (mmb_pressed) {
-                    panCamera(tpf, 0);
+                    panCamera(value * panSpeed, 0);
                 }
 
                 break;
@@ -215,12 +288,12 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
             case "MouseAxisX-": {
 
-                if (rmb_pressed) {
-                    rotateCamera(0, tpf);
+                if (lmb_pressed || rmb_pressed) {
+                    rotateCamera(0, value * rotateSpeed);
                 }
 
                 if (mmb_pressed) {
-                    panCamera(-tpf, 0);
+                    panCamera(-value * panSpeed, 0);
                 }
 
                 break;
@@ -229,12 +302,16 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
             case "MouseAxisY": {
 
+                if (lmb_pressed) {
+                    zoomCamera(value * zoomSpeed * zoomSpeed);
+                }
+
                 if (rmb_pressed) {
-                    rotateCamera(-tpf, 0);
+                    rotateCamera(-value * rotateSpeed, 0);
                 }
 
                 if (mmb_pressed) {
-                    panCamera(0, -tpf);
+                    panCamera(0, -value * panSpeed);
                 }
 
                 break;
@@ -242,12 +319,16 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
             case "MouseAxisY-": {
 
+                if (lmb_pressed) {
+                    zoomCamera(-value * zoomSpeed * zoomSpeed);
+                }
+
                 if (rmb_pressed) {
-                    rotateCamera(tpf, 0);
+                    rotateCamera(value * rotateSpeed, 0);
                 }
 
                 if (mmb_pressed) {
-                    panCamera(0, tpf);
+                    panCamera(0, value * panSpeed);
                 }
 
                 break;
@@ -255,12 +336,12 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
 
             case "MouseWheel": {
-                zoomCamera(tpf);
+                zoomCamera(value);
                 break;
             }
 
             case "MouseWheel-": {
-                zoomCamera(-tpf);
+                zoomCamera(-value);
                 break;
             }
 

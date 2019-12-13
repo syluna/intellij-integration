@@ -1,9 +1,6 @@
 package com.jmonkeystore.ide.scene.explorer.impl;
 
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBScrollPane;
@@ -13,24 +10,16 @@ import com.jme3.animation.AnimControl;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jmonkeystore.ide.api.JmeObject;
 import com.jmonkeystore.ide.api.plugin.input.SceneInputListener;
 import com.jmonkeystore.ide.editor.controls.JmeEditorControl;
-import com.jmonkeystore.ide.editor.controls.ReflectionEditor;
 import com.jmonkeystore.ide.editor.controls.anim.AnimComposerControl;
 import com.jmonkeystore.ide.editor.controls.anim.AnimationControl;
-import com.jmonkeystore.ide.editor.impl.JmeModelFileEditorImpl;
-import com.jmonkeystore.ide.editor.ui.JmeModelEditorUI;
-import com.jmonkeystore.ide.jme.JmeEngineService;
-import com.jmonkeystore.ide.jme.scene.NormalViewerState;
 import com.jmonkeystore.ide.scene.editor.PropertyEditorService;
 import com.jmonkeystore.ide.scene.explorer.SceneExplorerService;
 import com.jmonkeystore.ide.scene.explorer.SceneTreeRenderer;
-import com.jmonkeystore.ide.util.ProjectUtils;
 import org.jdesktop.swingx.HorizontalLayout;
 import org.jdesktop.swingx.VerticalLayout;
 
@@ -39,8 +28,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +41,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
     // editors for Node (lemur labels, etc).
     private Map<Class<? extends Node>, Class<? extends JmeEditorControl>> nodeEditors = new HashMap<>();
 
-    private Map<Class<? extends Spatial>, SceneInputListener> sceneStateListeners = new HashMap<>();
+    private Map<Class<? extends Spatial>, SceneInputListener> sceneInputListeners = new HashMap<>();
     private SceneInputListener activeSceneInputListener;
 
     private SceneTreeContextMenuListener contextMenuListener;
@@ -105,9 +92,13 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
         treeModel = new DefaultTreeModel(treeRoot);
 
         tree = new Tree(treeModel);
+        tree.setToggleClickCount(0);
         tree.setCellRenderer(new SceneTreeRenderer());
 
+        /*
         tree.addTreeSelectionListener(e -> {
+
+
 
             // always clear the window content.
             propertyEditorService.clearWindowContent();
@@ -123,7 +114,7 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                 ServiceManager.getService(JmeEngineService.class).getStateManager().detach(activeSceneInputListener);
             }
 
-            activeSceneInputListener = sceneStateListeners.get(treeNode.getUserObject().getClass());
+            activeSceneInputListener = sceneInputListeners.get(treeNode.getUserObject().getClass());
 
             if (activeSceneInputListener != null) {
                 Spatial spatial = (Spatial) treeNode.getUserObject();
@@ -214,43 +205,6 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                     });
                 }
 
-                if (true) {
-                    return;
-                }
-
-                /*
-
-                boolean foundEditor = false;
-
-                // iterate over all registered editors.
-                for (Map.Entry<Class<?>, Class<? extends JmeObject>> entry : registeredEditors.entrySet()) {
-
-                    Class<?> clazz = entry.getKey();
-
-                    if (item.getClass().isAssignableFrom(clazz)) {
-                        try {
-                            Constructor constructor = entry.getValue().getConstructor(item.getClass());
-                            JmeObject editor = (JmeObject) constructor.newInstance(item);
-                            propertyEditorService.setWindowContent(editor);
-                        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException ex) {
-                            ex.printStackTrace();
-                        }
-
-                        // regardless of an exception, an editor was matched, so we should stop looking for one.
-                        foundEditor = true;
-                        break;
-                    }
-
-                }
-
-                if (!foundEditor) {
-                    propertyEditorService.clearWindowContent();
-
-                    if (modelEditor != null) {
-                        modelEditor.clearAllHighlights();
-                    }
-                }
-                */
             }
             else {
                 propertyEditorService.clearWindowContent();
@@ -260,6 +214,10 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
                 }
             }
         });
+
+         */
+        tree.addTreeSelectionListener(new SceneTreeSelectionListener());
+        tree.addMouseListener(new SceneTreeClickListener());
 
         // set the save action after the treeRoot has been initialized.
         saveButton.addActionListener(e -> {
@@ -342,17 +300,42 @@ public class SceneExplorerServiceImpl implements SceneExplorerService {
 
     @Override
     public void registerSceneStateListener(Class<? extends Spatial> spatialClass, SceneInputListener inputListener) {
-        this.sceneStateListeners.put(spatialClass, inputListener);
+        this.sceneInputListeners.put(spatialClass, inputListener);
     }
 
     @Override
     public void registerSceneStateListeners(Map<Class<? extends Spatial>, SceneInputListener> listeners) {
-        this.sceneStateListeners.putAll(listeners);
+        this.sceneInputListeners.putAll(listeners);
     }
 
     @Override
     public void clearRegisteredStateListeners() {
-        this.sceneStateListeners.clear();
+        this.sceneInputListeners.clear();
+    }
+
+    @Override
+    public Class<? extends JmeEditorControl> getControlEditor(Class<? extends Control> controlClass) {
+        return controlEditors.get(controlClass);
+    }
+
+    @Override
+    public Map<Class<? extends Spatial>, SceneInputListener> getSceneInputListeners() {
+        return sceneInputListeners;
+    }
+
+    @Override
+    public SceneInputListener getActiveSceneInputListener() {
+        return activeSceneInputListener;
+    }
+
+    @Override
+    public void setActiveSceneInputListener(SceneInputListener activeSceneInputListener) {
+        this.activeSceneInputListener = activeSceneInputListener;
+    }
+
+    @Override
+    public void setActiveSceneInputListener(Class<?> spatialClass) {
+        this.activeSceneInputListener = sceneInputListeners.get(spatialClass);
     }
 
     /*

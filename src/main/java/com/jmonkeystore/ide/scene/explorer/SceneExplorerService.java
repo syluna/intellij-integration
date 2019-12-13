@@ -31,4 +31,12 @@ public interface SceneExplorerService {
    void registerSceneStateListeners(Map<Class<? extends Spatial>, SceneInputListener> sceneStateListeners);
    void clearRegisteredStateListeners();
 
+   Class<? extends JmeEditorControl> getControlEditor(Class<? extends Control> controlClass);
+
+   Map<Class<? extends Spatial>, SceneInputListener> getSceneInputListeners();
+
+   SceneInputListener getActiveSceneInputListener();
+   void setActiveSceneInputListener(SceneInputListener activeSceneInputListener);
+   void setActiveSceneInputListener(Class<?> spatialClass);
+
 }

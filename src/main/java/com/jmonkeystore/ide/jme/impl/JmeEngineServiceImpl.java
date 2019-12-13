@@ -112,16 +112,29 @@ public class JmeEngineServiceImpl extends SimpleApplication implements JmeEngine
                     if (canvasContext.containsPanel(jmePanel)) {
                         if (mouseEvent.getID() == MouseEvent.MOUSE_ENTERED) {
                             canvasContext.setInputSource(jmePanel);
+                            canvasContext.setActivePanel(jmePanel);
                             editorCameraState.setActiveCamera(jmePanel.getCamera());
                         }
                         else if (mouseEvent.getID() == MouseEvent.MOUSE_EXITED) {
                             editorCameraState.removeActiveCamera();
+
+                            // don't set this to null.
+                            // at least one panel will be active if it has been created.
+                            // this allows us to manipilate the panel (camera, scene, etc) whilst the mouse
+                            // is not directly over it.
+                            // Used for situations such as looking at objects we click on in the scene explorer.
+                            // canvasContext.setActivePanel(null);
                         }
                     }
 
                 }
             }
         }
+    }
+
+    @Override
+    public JmePanel getActivePanel() {
+        return canvasContext.getActivePanel();
     }
 
     @Override

@@ -6,8 +6,18 @@ import com.jme3.system.awt.AwtPanelsContext;
 
 public class SwingCanvasContext extends AwtPanelsContext {
 
+    private JmePanel activePanel;
+
     public void addPanel(JmePanel panel) {
         panels.add(panel);
+    }
+
+    public JmePanel getActivePanel() {
+        return activePanel;
+    }
+
+    public void setActivePanel(JmePanel activePanel) {
+        this.activePanel = activePanel;
     }
 
     public void removePanel(JmePanel panel) {
