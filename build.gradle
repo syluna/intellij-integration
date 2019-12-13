@@ -7,7 +7,7 @@ apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 group 'com.jmonkeystore'
-version '1.0.5.1'
+version '1.0.5.2'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -56,6 +56,14 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
+
+    <h3>1.0.5.2</h3?
+    <ul>
+        <li>Remove all un-used scene editor objects.</li>
+        <li>Double-Click a node in scene explorer to lookAt it.</li>
+        <li>Add use WASD/QE keys to manouver when pressing LMB, RMB or MMB in scene editor.</li>
+        <li>Improve camera mouse controls in scene editor.</li>
+    </ul>
 
     <h3>1.0.5.1</h3>
     <ul>
