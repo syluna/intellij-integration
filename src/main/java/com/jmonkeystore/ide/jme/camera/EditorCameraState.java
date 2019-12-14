@@ -39,8 +39,10 @@ public class EditorCameraState extends BaseAppState implements AnalogListener, A
 
     public void removeActiveCamera() {
         this.cam = null;
-        this.rmb_pressed = false;
-        this.mmb_pressed = false;
+
+        lmb_pressed = rmb_pressed = mmb_pressed = false;
+        key_forward = key_back = key_left = key_right = false;
+        key_up = key_down = false;
     }
 
     public float getPanSpeed() {
